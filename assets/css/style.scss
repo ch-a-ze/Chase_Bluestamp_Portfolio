@@ -1,6 +1,38 @@
-$header-bg-color: #123456;
-$header-bg-color-secondary: #654321;
-$section-headings-color: #123456;
-$body-link-color: #123456;
+---
+---
 
 @import "{{ site.theme }}";
+
+body {
+  color: #333;
+}
+
+a {
+  color: #d35400;
+}
+
+a:hover {
+  color: #a04000;
+}
+
+header {
+  background: #2c3e50;
+  border-bottom: solid 1px #1a252f;
+}
+
+header h1 {
+  color: #fff;
+}
+
+header h2 {
+  color: #ecf0f1;
+}
+
+#main-content h1,
+#main-content h2,
+#main-content h3,
+#main-content h4,
+#main-content h5,
+#main-content h6 {
+  color: #2c3e50;
+}
