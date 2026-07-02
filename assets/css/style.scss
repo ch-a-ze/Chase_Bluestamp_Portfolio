@@ -1,12 +1,8 @@
 ---
 ---
-
-$body-bg: #0d1117;
-$text-color: #c9d1d9;
-$link-color: #58a6ff;
-
 @import "{{ site.theme }}";
 
-.header-heading {
-  color: #ff6b6b;
+header a.button {
+  background: #d64545 !important; /* replace the image with a solid color */
+  background-image: none !important;
 }
