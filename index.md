@@ -1,19 +1,19 @@
-# Gyro-Controlled Drawing Robot
+# Bluestamp Engineering Drawing Robot
 
-I'm building a two-wheeled robot that draws using gyroscope-based heading correction instead of stepper-driven rails. It runs on an Arduino Uno R3, using a BNO055 IMU to hold accurate headings, quadrature-encoded motors to track distance, an HC-05 Bluetooth module to receive commands, and a servo to lift and lower the pen. Right now I'm in the thick of getting the circuit fully working, from soldering the gyro board to testing the servo and motors on a breadboard.
+This is a drawing robot that uses a gyroscope to steer itself as it moves, so it can trace shapes and drawings onto paper. It runs on an Arduino Nano ESP32 and brings together a few different systems: motors with encoders, a gyro to track direction, a servo to lift the pen, and a bluetooth website to send it commands. 
 
-<!---
-You should comment out all portions of your portfolio that you have not completed yet, as well as any instructions:
 <!--- This is an HTML comment in Markdown -->
 <!--- Anything between these symbols will not render on the published site -->
--->
 
 | **Engineer** | **School** | **Area of Interest** | **Grade** |
 |:--:|:--:|:--:|:--:|
 | Chase L | Mtn View | Electrical Engineering | Incoming Junior |
 
-<!--- Replace the BlueStamp logo below with an image of yourself and your completed project once you have one. -->
+<!--- Replace the logo below with a photo of yourself and your project once it's further along. Guide: https://tomcam.github.io/least-github-pages/adding-images-github-pages-site.html -->
+
 ![Headstone Image](logo.svg)
+
+<!--- Second Milestone and Final Milestone are commented out until they're done. The section headers and videos are kept so the structure stays in place. -->
 
 <!---
 # Final Milestone
@@ -43,39 +43,38 @@ For your second milestone, explain what you've worked on since your previous mil
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/CaCazFBhYKs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
-My project is a gyro-controlled drawing robot: a two-wheeled plotter built around an Arduino Uno R3, a BNO055 IMU for heading, quadrature-encoded N20 motors for distance tracking, an HC-05 Bluetooth module for wireless commands, and an SG90 micro servo to lift and lower the pen. A TB6612FNG motor driver controls the two drive motors, and everything runs off a 9V battery stepped down to 6V for the motors and servo.
+My first milestone was planning out the full build and getting all the electronics figured out before putting the robot together.
 
-After finishing my starter project (an RGB slider that never quite worked, but taught me a lot about troubleshooting), I moved into planning the drawing robot. I got my build plan approved, mapped out where every part needed to go, and started soldering, getting the BNO055 and the I2C logic level shifter onto their pins. From there I built out the circuit on a breadboard and worked through it piece by piece: I got the servo running cleanly first, then moved on to wiring in the motors.
+The robot has a few main parts that all have to work with each other. The Arduino Nano is the brain that controls everything. Two N20 motors with encoders drive the wheels and keep track of how far the robot has moved. A BNO055 gyro measures which way the robot is facing so it can turn accurately. An SG90 servo raises and lowers the pencil/drawing utensil, a L9110 motor driver sits between the Arduino and the motors and controls their speed and direction.
 
-The biggest challenge has been the sheer complexity of the circuit. I hadn't built anything this involved on my own before, and there were a lot of ways for things to go wrong: a shaky common ground, a servo that kept throwing errors, and parts that worked fine on the Arduino Uno but needed extra troubleshooting when I was testing with a Nano ESP32. Multimeters became my best friend this week.
+The biggest challenge at this stage was getting started. Initially, the wiring diagrams looked way too complicated to understand, so it took a few days to really start to get it, and I didn't start wiring with the breadboard until about a week in. However, it wasn't just the wires. I also had to figure out what all the parts I mentioned above actually did. We were also initially going to use an Arduino UNO, TB6612FNG motor driver, and an HC-05 for bluetooth, but we switched all of those things out for the nano & L9110 driver, so I had to get a deeper understanding of how to wire them. Eventually, I did get it and now I have a fully functioning circuit.
 
-Before my next milestone, I still need to:
-- Finalize the circuit and move it from the breadboard onto a soldered perfboard
-- Get the motors fully wired in and running, not just the servo
-- Start coding the motors so the wheels actually turn
-- Mount everything onto the base once the wiring is solid
+For my next milestones I plan to attach everything to the base, get the motors and gyro working together so the robot can drive straight and turn to a set direction, and then add the pen-lift on so it can actually draw.
 
-<!---
 # Schematics
-Here's where you'll put images of your schematics. [Tinkercad](https://www.tinkercad.com/blog/official-guide-to-tinkercad-circuits) and [Fritzing](https://fritzing.org/learning/) are both great resources to create professional schematic diagrams, though BSE recommends Tinkercad because it can be done easily and for free in the browser.
--->
 
-<!---
+<!--- Add your schematic image here once it's made. Tinkercad (https://www.tinkercad.com/blog/official-guide-to-tinkercad-circuits) and Fritzing (https://fritzing.org/learning/) are both good options. BSE recommends Tinkercad since it runs free in the browser. -->
+
 # Code
-Here's where you'll put your code once you have it written.
+
+<!--- Paste your Milestone 1 code here once it's ready. The block below is just a placeholder from the template. Formatting guide: https://www.markdownguide.org/extended-syntax/ -->
+
 ```c++
 void setup() {
+  // put your setup code here, to run once:
   Serial.begin(9600);
   Serial.println("Hello World!");
 }
 
 void loop() {
+  // put your main code here, to run repeatedly:
 
 }
 ```
--->
 
 # Bill of Materials
+
+<!--- Prices below are typical hobbyist estimates and will vary by seller. Replace each price and the Link with the actual item and price you purchased. -->
 
 | **Part** | **Note** | **Price** | **Link** |
 |:--:|:--:|:--:|:--:|
@@ -98,4 +97,12 @@ void loop() {
 | 3D Printed Parts (pen-lift assembly, battery tray, 2 glides) | Printed from the included STL files; cost is filament only | $2 | <a href="https://www.instructables.com/Gyro-Controlled-Robot-Plotter/"> STL files </a> |
 | Pencil / Fibre-tip Pen | The drawing instrument held by the pen-lift tube | $1 | <a href="https://www.amazon.com/s?k=pencil"> Link </a> |
 
-<!--- Estimated total: ~$131 at the prices above. -->
+<!--- Estimated total: ~$131 at the prices above. The original project lists an estimated cost of under $100 excluding shipping, so your total will depend on which clone/branded parts you buy. -->
+
+# Other Resources/Examples
+One of the best parts about Github is that you can view how other people set up their own work. Here are some past BSE portfolios that are awesome examples. You can view how they set up their portfolio, and you can view their index.md files to understand how they implemented different portfolio components.
+- [Example 1](https://trashytuber.github.io/YimingJiaBlueStamp/)
+- [Example 2](https://sviatil0.github.io/Sviatoslav_BSE/)
+- [Example 3](https://arneshkumar.github.io/arneshbluestamp/)
+
+To watch the BSE tutorial on how to create a portfolio, click here.
