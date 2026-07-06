@@ -112,4 +112,4 @@ Obviously, this is not the only drawing robot that exists. I took inspiration fo
 Other examples of drawing robots can be found below:
 - [Hackaday Drawing Robot](https://sviatil0.github.io/Sviatoslav_BSE/)
 - [Ken Olsen's Arduino Robot](https://www.instructables.com/Arduino-Drawing-Robot/)
-- 
+- [Antonio Mancuso's 3D Printed Drawing Robot](https://www.electromaker.io/blog/article/create-a-3d-printed-drawing-robot-with-arduino-54?srsltid=AfmBOoqwb62AfsNsCO_mHoxaW_undO1t0-Qz6ZHX5Y_PsWbkRKjaG6-v)
