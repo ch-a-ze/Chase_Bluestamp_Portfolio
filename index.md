@@ -11,7 +11,7 @@ This is a drawing robot that uses a gyroscope to steer itself as it moves, so it
 
 <!--- Replace the logo below with a photo of yourself and your project once it's further along. Guide: https://tomcam.github.io/least-github-pages/adding-images-github-pages-site.html -->
 
-![Headstone Image](Logo.svg)
+![Headstone Image](Logo2.svg)
 
 <!--- Second Milestone and Final Milestone are commented out until they're done. The section headers and videos are kept so the structure stays in place. -->
 
