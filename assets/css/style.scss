@@ -4,12 +4,12 @@
 
 /* =========================================================================
    Bluestamp Drawing Robot — futuristic / circuit-board skin for Midnight
-   Everything below LOADS AFTER the theme, so these rules win by cascade.
+   Loads AFTER the theme, so these rules win by cascade.
    Tweak the variables in :root to re-color the whole page in one place.
    ========================================================================= */
 
 :root {
-  --bg-0:   #05080f;                 /* deep black-blue */
+  --bg-0:   #05080f;                 /* deepest black-blue */
   --bg-1:   #0b111c;                 /* base background     */
   --panel:  #0e1622;                 /* content card        */
   --line:   rgba(34,211,238,.22);    /* hairline borders    */
@@ -20,6 +20,12 @@
   --ink-dim:#8aa0b5;                 /* secondary text      */
   --head:   #eaf6ff;                 /* headings            */
 }
+
+/* ---------- Delete the top bar ----------------------------------------- */
+/* #header is the fixed strip with the green button + download links.      */
+#header { display: none !important; }
+/* The bar was fixed (out of flow), so tighten the top gap it left behind. */
+.wrapper { padding-top: 44px !important; }
 
 /* ---------- The geometric circuit background ---------------------------- */
 /* Layers, top → bottom:
@@ -52,16 +58,13 @@ body {
     100% 100% !important;
 }
 
-/* ---------- Content card ----------------------------------------------- */
-/* Midnight's main column is #main_content; the section fallback is a safety
-   net in case the id ever changes.                                         */
-#main_content,
-.inner section {
+/* ---------- Content card (the whole section column) --------------------- */
+.wrapper section {
   position: relative;
   background: linear-gradient(180deg, rgba(14,22,34,.93), rgba(9,14,22,.95)) !important;
   border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 30px 34px !important;
+  border-radius: 16px;
+  padding: 34px 40px 40px !important;
   box-shadow:
     0 22px 60px rgba(0,0,0,.55),
     inset 0 0 44px rgba(34,211,238,.04);
@@ -69,30 +72,43 @@ body {
   backdrop-filter: blur(2px);
 }
 /* glowing accent rail down the left edge of the card */
-#main_content::before {
+.wrapper section::before {
   content:"";
-  position:absolute; left:0; top:14px; bottom:14px; width:2px;
+  position:absolute; left:0; top:16px; bottom:16px; width:2px;
   border-radius:2px;
   background: linear-gradient(180deg, var(--accent), var(--blue));
   box-shadow: 0 0 14px rgba(56,225,255,.6);
 }
 
-/* ---------- Headings ---------------------------------------------------- */
-#main_content h1,
-#main_content h2,
-#main_content h3,
-#main_content h4 {
+/* ---------- Page title block (#title) ---------------------------------- */
+#title h1 {
+  color: #ffffff !important;
+  text-shadow: 0 0 22px rgba(56,225,255,.45);
+}
+#title p { color: var(--ink-dim) !important; }
+#title hr {
+  border: none; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line), transparent) !important;
+}
+#title .credits { color: var(--ink-dim); }
+#title .credits a { color: var(--accent) !important; border-bottom: none; }
+
+/* ---------- Content headings (direct children of section) --------------- */
+.wrapper section > h1,
+.wrapper section > h2,
+.wrapper section > h3,
+.wrapper section > h4 {
   color: var(--head) !important;
   letter-spacing:.3px;
   text-shadow: 0 0 18px rgba(34,211,238,.22);
 }
-#main_content h1 {
+.wrapper section > h1 {
   border-bottom: 1px solid var(--line);
   padding-bottom:.35em;
-  margin-top: 1.4em;
+  margin-top: 1.5em;
 }
-/* little cyan "chip" marker before each h1 — reads like a circuit node */
-#main_content h1::before {
+/* little cyan "chip" marker before each content h1 — reads like a node */
+.wrapper section > h1::before {
   content:"";
   display:inline-block;
   width:9px; height:22px; margin-right:12px; vertical-align:-3px;
@@ -102,20 +118,20 @@ body {
 }
 
 /* ---------- Links ------------------------------------------------------- */
-#main_content a {
+.wrapper section a {
   color: var(--accent) !important;
   text-decoration: none;
   border-bottom: 1px solid rgba(56,225,255,.32);
   transition: color .15s ease, text-shadow .15s ease, border-color .15s ease;
 }
-#main_content a:hover {
+.wrapper section a:hover {
   color: #ffffff !important;
   border-bottom-color: var(--accent);
   text-shadow: 0 0 10px rgba(56,225,255,.6);
 }
 
 /* ---------- Tables (engineer info + bill of materials) ------------------ */
-#main_content table {
+.wrapper section table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
@@ -124,87 +140,63 @@ body {
   border-radius: 10px;
   overflow: hidden;
 }
-#main_content th {
+.wrapper section th {
   background: linear-gradient(180deg, rgba(34,211,238,.16), rgba(34,211,238,.05));
   color: var(--head) !important;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--line) !important;
   padding: 11px 14px;
 }
-#main_content td {
-  border-bottom: 1px solid rgba(34,211,238,.10);
+.wrapper section td {
+  border-bottom: 1px solid rgba(34,211,238,.10) !important;
   padding: 10px 14px;
   color: var(--ink);
 }
-#main_content tr:last-child td { border-bottom: none; }
-#main_content tbody tr:hover td { background: rgba(34,211,238,.05); }
+.wrapper section tr:last-child td { border-bottom: none !important; }
+.wrapper section tbody tr:hover td { background: rgba(34,211,238,.05); }
 
 /* ---------- Code -------------------------------------------------------- */
-#main_content pre,
-#main_content code {
+.wrapper section pre,
+.wrapper section code {
   background: #0a0f1a !important;
   border: 1px solid var(--line);
   border-radius: 8px;
   color: #d3ecff !important;
 }
-#main_content code { padding: 2px 6px; }
-#main_content pre {
+.wrapper section code { padding: 2px 6px; }
+.wrapper section pre {
   padding: 16px 18px;
   box-shadow: inset 0 0 30px rgba(34,211,238,.05);
 }
-#main_content pre code { border: none; padding: 0; background: transparent !important; }
+.wrapper section pre code { border: none; padding: 0; background: transparent !important; }
 
 /* ---------- Videos & images -------------------------------------------- */
-#main_content iframe {
+.wrapper section iframe {
   max-width: 100%;
   border-radius: 12px;
   border: 1px solid var(--line);
   box-shadow: 0 12px 40px rgba(0,0,0,.55), 0 0 26px rgba(34,211,238,.10);
 }
-/* Photos you add later get a framed, glowing treatment. If your logo SVG
-   looks boxed-in, delete this img rule or swap the logo for a real photo. */
-#main_content img {
+/* Photos you add later get a framed, glowing treatment. If the logo SVG
+   looks boxed-in, delete this img rule or swap in a real photo. */
+.wrapper section img {
   max-width: 100%;
   border-radius: 10px;
   box-shadow: 0 10px 30px rgba(0,0,0,.5), 0 0 26px rgba(34,211,238,.08);
 }
 
 /* ---------- Misc content ------------------------------------------------ */
-#main_content blockquote {
+.wrapper section blockquote {
   border-left: 3px solid var(--cyan);
   background: rgba(34,211,238,.05);
   color: var(--ink-dim);
   border-radius: 0 8px 8px 0;
   padding: 6px 16px;
 }
-#main_content hr {
-  border: none;
-  height: 1px;
+.wrapper section > hr {
+  border: none; height: 1px;
   background: linear-gradient(90deg, transparent, var(--line), transparent);
 }
-#main_content strong { color: var(--head); }
-
-/* ---------- Header sidebar --------------------------------------------- */
-header h1 {
-  color: #ffffff !important;
-  text-shadow: 0 0 22px rgba(56,225,255,.45);
-}
-header p, header h2 { color: var(--ink-dim) !important; }
-
-/* The "View on GitHub" button — recolored from the red to match the theme.
-   Prefer to keep it red? Comment this block out and your old rule wins. */
-header a.button {
-  background: linear-gradient(135deg, var(--cyan), var(--blue)) !important;
-  background-image: linear-gradient(135deg, var(--cyan), var(--blue)) !important;
-  color: #04222b !important;
-  font-weight: 700 !important;
-  border: none !important;
-  box-shadow: 0 0 18px rgba(34,211,238,.45) !important;
-  transition: box-shadow .15s ease, transform .15s ease;
-}
-header a.button:hover {
-  box-shadow: 0 0 28px rgba(34,211,238,.75) !important;
-  transform: translateY(-1px);
-}
+.wrapper section strong { color: var(--head); }
 
 /* ---------- Small polish ------------------------------------------------ */
 html { scroll-behavior: smooth; }
@@ -217,8 +209,6 @@ html { scroll-behavior: smooth; }
   border-radius: 8px;
 }
 
-/* Respect users who ask for less motion */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  header a.button { transition: none; }
 }
