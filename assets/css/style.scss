@@ -11,7 +11,6 @@
 :root {
   --bg-0:   #05080f;                 /* deepest black-blue */
   --bg-1:   #0b111c;                 /* base background     */
-  --panel:  #0e1622;                 /* content card        */
   --line:   rgba(34,211,238,.22);    /* hairline borders    */
   --cyan:   #22d3ee;
   --accent: #38e1ff;                 /* brightest highlight */
@@ -21,19 +20,9 @@
   --head:   #eaf6ff;                 /* headings            */
 }
 
-/* ---------- Delete the top bar ----------------------------------------- */
-/* #header is the fixed strip with the green button + download links.      */
-#header { display: none !important; }
-/* The bar was fixed (out of flow), so tighten the top gap it left behind. */
-.wrapper { padding-top: 44px !important; }
-
 /* ---------- The geometric circuit background ---------------------------- */
-/* Layers, top → bottom:
-   1. SVG circuit traces + node rings (subtle texture)
-   2/3. fine 44px tech grid (vertical + horizontal)
-   4/5. two diagonal neon "beams" like the reference image
-   6/7. soft corner glows (cyan top-right, blue bottom-left)
-   8. base radial vignette                                                    */
+/* Layers, top → bottom: SVG traces + node rings, a 44px tech grid,
+   two diagonal neon beams, soft corner glows, base vignette.               */
 body {
   color: var(--ink) !important;
   background-color: var(--bg-1) !important;
@@ -48,36 +37,60 @@ body {
     radial-gradient(900px  760px at -12% 112%, rgba(59,130,246,.13), transparent 60%),
     radial-gradient(1400px 1000px at 50% 50%, var(--bg-1), var(--bg-0)) !important;
   background-size:
-    620px 620px,
-    44px 44px,
-    44px 44px,
-    100% 100%,
-    100% 100%,
-    100% 100%,
-    100% 100%,
-    100% 100% !important;
+    620px 620px, 44px 44px, 44px 44px,
+    100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100% !important;
 }
 
-/* ---------- Content card (the whole section column) --------------------- */
-.wrapper section {
-  position: relative;
-  background: linear-gradient(180deg, rgba(14,22,34,.93), rgba(9,14,22,.95)) !important;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 34px 40px 40px !important;
-  box-shadow:
-    0 22px 60px rgba(0,0,0,.55),
-    inset 0 0 44px rgba(34,211,238,.04);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
+/* ---------- Top bar (#header) — restyled to fit, not deleted ------------ */
+/* Dark glassy strip with a bottom cyan hairline instead of the olive
+   texture.                                                                 */
+#header {
+  background: rgba(7,11,18,.80) !important;
+  border-bottom: 1px solid var(--line) !important;
+  box-shadow: 0 2px 26px rgba(0,0,0,.5), 0 0 22px rgba(34,211,238,.08) !important;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
-/* glowing accent rail down the left edge of the card */
-.wrapper section::before {
-  content:"";
-  position:absolute; left:0; top:16px; bottom:16px; width:2px;
-  border-radius:2px;
-  background: linear-gradient(180deg, var(--accent), var(--blue));
-  box-shadow: 0 0 14px rgba(56,225,255,.6);
+#header a { color: var(--accent) !important; }
+
+/* The green "View On GitHub" button → cyan/blue gradient chip */
+#header .fork a,
+#header li.fork a,
+#header ul li.fork a {
+  background-image: none !important;
+  background: linear-gradient(135deg, var(--cyan), var(--blue)) !important;
+  color: #04222b !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(255,255,255,.15) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 0 16px rgba(34,211,238,.45) !important;
+  text-shadow: none !important;
+}
+#header .fork, #header li.fork { background: transparent !important; }
+
+/* Download / project links (only show on some setups) — quiet dark chips */
+#header li.downloads a {
+  background: rgba(34,211,238,.08) !important;
+  background-image: none !important;
+  color: var(--accent) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 8px !important;
+  text-shadow: none !important;
+}
+#header li.title, #header .title { color: var(--ink-dim) !important; }
+
+/* ---------- Layout: keep the text column nice and wide ------------------ */
+.wrapper {
+  max-width: 860px !important;
+  width: 90% !important;
+  margin: 0 auto !important;
+}
+/* No boxed card — let content breathe over the background like before */
+.wrapper section {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 
 /* ---------- Page title block (#title) ---------------------------------- */
@@ -105,7 +118,7 @@ body {
 .wrapper section > h1 {
   border-bottom: 1px solid var(--line);
   padding-bottom:.35em;
-  margin-top: 1.5em;
+  margin-top: 1.6em;
 }
 /* little cyan "chip" marker before each content h1 — reads like a node */
 .wrapper section > h1::before {
@@ -139,6 +152,7 @@ body {
   border: 1px solid var(--line);
   border-radius: 10px;
   overflow: hidden;
+  background: rgba(10,15,26,.6);
 }
 .wrapper section th {
   background: linear-gradient(180deg, rgba(34,211,238,.16), rgba(34,211,238,.05));
@@ -176,8 +190,8 @@ body {
   border: 1px solid var(--line);
   box-shadow: 0 12px 40px rgba(0,0,0,.55), 0 0 26px rgba(34,211,238,.10);
 }
-/* Photos you add later get a framed, glowing treatment. If the logo SVG
-   looks boxed-in, delete this img rule or swap in a real photo. */
+/* Frames real project photos nicely. Delete this block if your logo SVG
+   looks boxed-in before you swap in an actual photo. */
 .wrapper section img {
   max-width: 100%;
   border-radius: 10px;
