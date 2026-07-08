@@ -2,8 +2,223 @@
 ---
 @import "{{ site.theme }}";
 
+/* =========================================================================
+   Bluestamp Drawing Robot — futuristic / circuit-board skin for Midnight
+   Everything below LOADS AFTER the theme, so these rules win by cascade.
+   Tweak the variables in :root to re-color the whole page in one place.
+   ========================================================================= */
+
+:root {
+  --bg-0:   #05080f;                 /* deep black-blue */
+  --bg-1:   #0b111c;                 /* base background     */
+  --panel:  #0e1622;                 /* content card        */
+  --line:   rgba(34,211,238,.22);    /* hairline borders    */
+  --cyan:   #22d3ee;
+  --accent: #38e1ff;                 /* brightest highlight */
+  --blue:   #3b82f6;
+  --ink:    #c6d4e3;                 /* body text           */
+  --ink-dim:#8aa0b5;                 /* secondary text      */
+  --head:   #eaf6ff;                 /* headings            */
+}
+
+/* ---------- The geometric circuit background ---------------------------- */
+/* Layers, top → bottom:
+   1. SVG circuit traces + node rings (subtle texture)
+   2/3. fine 44px tech grid (vertical + horizontal)
+   4/5. two diagonal neon "beams" like the reference image
+   6/7. soft corner glows (cyan top-right, blue bottom-left)
+   8. base radial vignette                                                    */
+body {
+  color: var(--ink) !important;
+  background-color: var(--bg-1) !important;
+  background-attachment: fixed !important;
+  background-image:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='620' height='620' viewBox='0 0 620 620'><g fill='none' stroke='%2322d3ee' stroke-opacity='0.16' stroke-width='1.4'><path d='M0 90H150l42 42h200'/><path d='M620 46H470l-44 44H300'/><path d='M0 310h110l44-44h130l42 42'/><path d='M620 360h-90l-44-44H360'/><path d='M90 620V500l44-44V360'/><path d='M540 0v96l-44 44v100'/><path d='M300 620v-88l44-44v-92'/><path d='M470 470h96'/><path d='M40 40h60v60'/></g><g fill='%230b111c' stroke='%2322d3ee' stroke-opacity='0.32' stroke-width='1.6'><circle cx='192' cy='132' r='7'/><circle cx='300' cy='310' r='9'/><circle cx='486' cy='140' r='6'/><circle cx='134' cy='456' r='6'/><circle cx='470' cy='470' r='7'/><circle cx='344' cy='488' r='5'/></g></svg>"),
+    repeating-linear-gradient(90deg, rgba(34,211,238,.045) 0 1px, transparent 1px 44px),
+    repeating-linear-gradient(0deg,  rgba(34,211,238,.045) 0 1px, transparent 1px 44px),
+    linear-gradient(120deg, transparent 0 30%, rgba(56,225,255,.10) 42%, transparent 47%),
+    linear-gradient(120deg, transparent 0 63%, rgba(59,130,246,.10) 71%, transparent 76%),
+    radial-gradient(1000px 640px at 88% -6%,  rgba(56,225,255,.16), transparent 60%),
+    radial-gradient(900px  760px at -12% 112%, rgba(59,130,246,.13), transparent 60%),
+    radial-gradient(1400px 1000px at 50% 50%, var(--bg-1), var(--bg-0)) !important;
+  background-size:
+    620px 620px,
+    44px 44px,
+    44px 44px,
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100% !important;
+}
+
+/* ---------- Content card ----------------------------------------------- */
+/* Midnight's main column is #main_content; the section fallback is a safety
+   net in case the id ever changes.                                         */
+#main_content,
+.inner section {
+  position: relative;
+  background: linear-gradient(180deg, rgba(14,22,34,.93), rgba(9,14,22,.95)) !important;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 30px 34px !important;
+  box-shadow:
+    0 22px 60px rgba(0,0,0,.55),
+    inset 0 0 44px rgba(34,211,238,.04);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+/* glowing accent rail down the left edge of the card */
+#main_content::before {
+  content:"";
+  position:absolute; left:0; top:14px; bottom:14px; width:2px;
+  border-radius:2px;
+  background: linear-gradient(180deg, var(--accent), var(--blue));
+  box-shadow: 0 0 14px rgba(56,225,255,.6);
+}
+
+/* ---------- Headings ---------------------------------------------------- */
+#main_content h1,
+#main_content h2,
+#main_content h3,
+#main_content h4 {
+  color: var(--head) !important;
+  letter-spacing:.3px;
+  text-shadow: 0 0 18px rgba(34,211,238,.22);
+}
+#main_content h1 {
+  border-bottom: 1px solid var(--line);
+  padding-bottom:.35em;
+  margin-top: 1.4em;
+}
+/* little cyan "chip" marker before each h1 — reads like a circuit node */
+#main_content h1::before {
+  content:"";
+  display:inline-block;
+  width:9px; height:22px; margin-right:12px; vertical-align:-3px;
+  border-radius:2px;
+  background: linear-gradient(180deg, var(--cyan), var(--blue));
+  box-shadow: 0 0 12px var(--cyan);
+}
+
+/* ---------- Links ------------------------------------------------------- */
+#main_content a {
+  color: var(--accent) !important;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(56,225,255,.32);
+  transition: color .15s ease, text-shadow .15s ease, border-color .15s ease;
+}
+#main_content a:hover {
+  color: #ffffff !important;
+  border-bottom-color: var(--accent);
+  text-shadow: 0 0 10px rgba(56,225,255,.6);
+}
+
+/* ---------- Tables (engineer info + bill of materials) ------------------ */
+#main_content table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1.3em 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+#main_content th {
+  background: linear-gradient(180deg, rgba(34,211,238,.16), rgba(34,211,238,.05));
+  color: var(--head) !important;
+  border-bottom: 1px solid var(--line);
+  padding: 11px 14px;
+}
+#main_content td {
+  border-bottom: 1px solid rgba(34,211,238,.10);
+  padding: 10px 14px;
+  color: var(--ink);
+}
+#main_content tr:last-child td { border-bottom: none; }
+#main_content tbody tr:hover td { background: rgba(34,211,238,.05); }
+
+/* ---------- Code -------------------------------------------------------- */
+#main_content pre,
+#main_content code {
+  background: #0a0f1a !important;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: #d3ecff !important;
+}
+#main_content code { padding: 2px 6px; }
+#main_content pre {
+  padding: 16px 18px;
+  box-shadow: inset 0 0 30px rgba(34,211,238,.05);
+}
+#main_content pre code { border: none; padding: 0; background: transparent !important; }
+
+/* ---------- Videos & images -------------------------------------------- */
+#main_content iframe {
+  max-width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 40px rgba(0,0,0,.55), 0 0 26px rgba(34,211,238,.10);
+}
+/* Photos you add later get a framed, glowing treatment. If your logo SVG
+   looks boxed-in, delete this img rule or swap the logo for a real photo. */
+#main_content img {
+  max-width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.5), 0 0 26px rgba(34,211,238,.08);
+}
+
+/* ---------- Misc content ------------------------------------------------ */
+#main_content blockquote {
+  border-left: 3px solid var(--cyan);
+  background: rgba(34,211,238,.05);
+  color: var(--ink-dim);
+  border-radius: 0 8px 8px 0;
+  padding: 6px 16px;
+}
+#main_content hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+}
+#main_content strong { color: var(--head); }
+
+/* ---------- Header sidebar --------------------------------------------- */
+header h1 {
+  color: #ffffff !important;
+  text-shadow: 0 0 22px rgba(56,225,255,.45);
+}
+header p, header h2 { color: var(--ink-dim) !important; }
+
+/* The "View on GitHub" button — recolored from the red to match the theme.
+   Prefer to keep it red? Comment this block out and your old rule wins. */
 header a.button {
-  background: #d64545 !important; /* replace the image with a solid color */
-  background-image: none !important;
-  
+  background: linear-gradient(135deg, var(--cyan), var(--blue)) !important;
+  background-image: linear-gradient(135deg, var(--cyan), var(--blue)) !important;
+  color: #04222b !important;
+  font-weight: 700 !important;
+  border: none !important;
+  box-shadow: 0 0 18px rgba(34,211,238,.45) !important;
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+header a.button:hover {
+  box-shadow: 0 0 28px rgba(34,211,238,.75) !important;
+  transform: translateY(-1px);
+}
+
+/* ---------- Small polish ------------------------------------------------ */
+html { scroll-behavior: smooth; }
+::selection { background: rgba(56,225,255,.35); color: #fff; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-0); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--cyan), var(--blue));
+  border-radius: 8px;
+}
+
+/* Respect users who ask for less motion */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  header a.button { transition: none; }
 }
