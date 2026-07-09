@@ -3,89 +3,79 @@
 @import "{{ site.theme }}";
 
 /* =========================================================================
-   Bluestamp Drawing Robot — futuristic / circuit-board skin for Midnight
-   Loads AFTER the theme, so these rules win by cascade.
-   Tweak the variables in :root to re-color the whole page in one place.
+   Bluestamp Drawing Robot — dark navy + red angular theme
+   Loads AFTER the Midnight theme, so these rules win by cascade.
+   Change the five colors in :root to recolor the whole page.
    ========================================================================= */
 
 :root {
-  --bg-0:   #05080f;                 /* deepest black-blue */
-  --bg-1:   #0b111c;                 /* base background     */
-  --line:   rgba(34,211,238,.22);    /* hairline borders    */
-  --cyan:   #22d3ee;
-  --accent: #38e1ff;                 /* brightest highlight */
-  --blue:   #3b82f6;
-  --ink:    #c6d4e3;                 /* body text           */
-  --ink-dim:#8aa0b5;                 /* secondary text      */
-  --head:   #eaf6ff;                 /* headings            */
+  --bg:      #0e1721;   /* deep navy base            */
+  --panel:   #131f2b;   /* code blocks, table fills  */
+  --line:    #24333f;   /* neutral hairline borders  */
+  --red:     #e8402a;   /* accent                    */
+  --red-dim: rgba(232,64,42,.35);
+  --ink:     #c3cfda;   /* body text                 */
+  --ink-dim: #8496a5;   /* secondary text            */
+  --head:    #f2f6f9;   /* headings                  */
 }
 
-/* ---------- The geometric circuit background ---------------------------- */
-/* Layers, top → bottom: SVG traces + node rings, a 44px tech grid,
-   two diagonal neon beams, soft corner glows, base vignette.               */
+/* ---------- Background: flat angular facets, no glow -------------------- */
+/* One SVG tile of slate triangles, soft red chevrons, and thin red
+   hairlines over a solid navy base. Fixed so it stays put on scroll.       */
 body {
   color: var(--ink) !important;
-  background-color: var(--bg-1) !important;
+  background-color: var(--bg) !important;
   background-attachment: fixed !important;
+  background-repeat: repeat !important;
+  background-size: 900px 900px !important;
   background-image:
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='620' height='620' viewBox='0 0 620 620'><g fill='none' stroke='%2322d3ee' stroke-opacity='0.16' stroke-width='1.4'><path d='M0 90H150l42 42h200'/><path d='M620 46H470l-44 44H300'/><path d='M0 310h110l44-44h130l42 42'/><path d='M620 360h-90l-44-44H360'/><path d='M90 620V500l44-44V360'/><path d='M540 0v96l-44 44v100'/><path d='M300 620v-88l44-44v-92'/><path d='M470 470h96'/><path d='M40 40h60v60'/></g><g fill='%230b111c' stroke='%2322d3ee' stroke-opacity='0.32' stroke-width='1.6'><circle cx='192' cy='132' r='7'/><circle cx='300' cy='310' r='9'/><circle cx='486' cy='140' r='6'/><circle cx='134' cy='456' r='6'/><circle cx='470' cy='470' r='7'/><circle cx='344' cy='488' r='5'/></g></svg>"),
-    repeating-linear-gradient(90deg, rgba(34,211,238,.045) 0 1px, transparent 1px 44px),
-    repeating-linear-gradient(0deg,  rgba(34,211,238,.045) 0 1px, transparent 1px 44px),
-    linear-gradient(120deg, transparent 0 30%, rgba(56,225,255,.10) 42%, transparent 47%),
-    linear-gradient(120deg, transparent 0 63%, rgba(59,130,246,.10) 71%, transparent 76%),
-    radial-gradient(1000px 640px at 88% -6%,  rgba(56,225,255,.16), transparent 60%),
-    radial-gradient(900px  760px at -12% 112%, rgba(59,130,246,.13), transparent 60%),
-    radial-gradient(1400px 1000px at 50% 50%, var(--bg-1), var(--bg-0)) !important;
-  background-size:
-    620px 620px, 44px 44px, 44px 44px,
-    100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100% !important;
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='900' height='900' viewBox='0 0 900 900'><g fill='%2316232f' fill-opacity='0.55'><polygon points='0,0 340,0 0,300'/><polygon points='900,120 900,520 560,220'/><polygon points='180,900 620,900 380,560'/><polygon points='620,0 900,0 900,90'/></g><g fill='%231b2a38' fill-opacity='0.45'><polygon points='0,420 300,760 0,900'/><polygon points='430,60 780,420 330,380'/><polygon points='700,620 900,760 900,900 640,900'/></g><g fill='none' stroke='%23e8402a' stroke-opacity='0.10' stroke-width='26' stroke-linejoin='miter'><polyline points='-40,250 200,470 420,190'/><polyline points='520,-40 700,300 880,60'/><polyline points='300,880 520,640 760,900'/></g><g fill='none' stroke='%23e8402a' stroke-opacity='0.16' stroke-width='1.2'><polyline points='0,60 640,0'/><polyline points='900,340 300,900'/><polyline points='120,0 700,900'/><polyline points='0,700 900,470'/></g></svg>") !important;
 }
 
-/* ---------- Top bar (#header) — restyled to fit, not deleted ------------ */
-/* Dark glassy strip with a bottom cyan hairline instead of the olive
-   texture.                                                                 */
+/* ---------- Top bar ----------------------------------------------------- */
 #header {
-  background: rgba(7,11,18,.80) !important;
-  border-bottom: 1px solid var(--line) !important;
-  box-shadow: 0 2px 26px rgba(0,0,0,.5), 0 0 22px rgba(34,211,238,.08) !important;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  background: rgba(11,18,26,.88) !important;
+  border-bottom: 2px solid var(--red) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 }
-#header a { color: var(--accent) !important; }
+#header a { color: var(--ink) !important; }
 
-/* The green "View On GitHub" button → cyan/blue gradient chip */
+/* "View On GitHub" button — flat red, no gradient */
 #header .fork a,
 #header li.fork a,
 #header ul li.fork a {
+  background: var(--red) !important;
   background-image: none !important;
-  background: linear-gradient(135deg, var(--cyan), var(--blue)) !important;
-  color: #04222b !important;
-  font-weight: 700 !important;
-  border: 1px solid rgba(255,255,255,.15) !important;
-  border-radius: 8px !important;
-  box-shadow: 0 0 16px rgba(34,211,238,.45) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border: none !important;
+  border-radius: 3px !important;
   text-shadow: none !important;
+  box-shadow: none !important;
 }
+#header .fork a:hover,
+#header li.fork a:hover { background: #ff5238 !important; }
 #header .fork, #header li.fork { background: transparent !important; }
 
-/* Download / project links (only show on some setups) — quiet dark chips */
+/* Download links, if your setup shows them */
 #header li.downloads a {
-  background: rgba(34,211,238,.08) !important;
+  background: transparent !important;
   background-image: none !important;
-  color: var(--accent) !important;
+  color: var(--ink-dim) !important;
   border: 1px solid var(--line) !important;
-  border-radius: 8px !important;
+  border-radius: 3px !important;
   text-shadow: none !important;
 }
 #header li.title, #header .title { color: var(--ink-dim) !important; }
 
-/* ---------- Layout: keep the text column nice and wide ------------------ */
+/* ---------- Layout: wide, uncarded text column -------------------------- */
 .wrapper {
-  max-width: 860px !important;
+  max-width: 880px !important;
   width: 90% !important;
   margin: 0 auto !important;
 }
-/* No boxed card — let content breathe over the background like before */
 .wrapper section {
   background: transparent !important;
   border: none !important;
@@ -93,136 +83,129 @@ body {
   padding: 0 !important;
 }
 
-/* ---------- Page title block (#title) ---------------------------------- */
+/* ---------- Title block ------------------------------------------------- */
 #title h1 {
-  color: #ffffff !important;
-  text-shadow: 0 0 22px rgba(56,225,255,.45);
+  color: var(--head) !important;
+  text-shadow: none !important;
+  letter-spacing: .5px;
 }
 #title p { color: var(--ink-dim) !important; }
 #title hr {
-  border: none; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--line), transparent) !important;
+  border: none !important;
+  height: 2px !important;
+  background: var(--red) !important;
+  width: 60px;
+  margin: 18px auto;
 }
 #title .credits { color: var(--ink-dim); }
-#title .credits a { color: var(--accent) !important; border-bottom: none; }
+#title .credits a { color: var(--red) !important; }
 
-/* ---------- Content headings (direct children of section) --------------- */
+/* ---------- Headings ---------------------------------------------------- */
 .wrapper section > h1,
 .wrapper section > h2,
 .wrapper section > h3,
 .wrapper section > h4 {
   color: var(--head) !important;
-  letter-spacing:.3px;
-  text-shadow: 0 0 18px rgba(34,211,238,.22);
+  text-shadow: none !important;
+  letter-spacing: .3px;
 }
+/* Section titles get a red wedge — an angular nod to the reference image */
 .wrapper section > h1 {
+  margin-top: 1.7em;
+  padding-bottom: .3em;
   border-bottom: 1px solid var(--line);
-  padding-bottom:.35em;
-  margin-top: 1.6em;
 }
-/* little cyan "chip" marker before each content h1 — reads like a node */
 .wrapper section > h1::before {
-  content:"";
-  display:inline-block;
-  width:9px; height:22px; margin-right:12px; vertical-align:-3px;
-  border-radius:2px;
-  background: linear-gradient(180deg, var(--cyan), var(--blue));
-  box-shadow: 0 0 12px var(--cyan);
+  content: "";
+  display: inline-block;
+  width: 14px; height: 14px;
+  margin-right: 12px;
+  background: var(--red);
+  /* right-pointing triangle, like the chevrons in the background */
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
 /* ---------- Links ------------------------------------------------------- */
 .wrapper section a {
-  color: var(--accent) !important;
+  color: var(--red) !important;
   text-decoration: none;
-  border-bottom: 1px solid rgba(56,225,255,.32);
-  transition: color .15s ease, text-shadow .15s ease, border-color .15s ease;
+  border-bottom: 1px solid var(--red-dim);
+  transition: border-color .15s ease, color .15s ease;
 }
 .wrapper section a:hover {
-  color: #ffffff !important;
-  border-bottom-color: var(--accent);
-  text-shadow: 0 0 10px rgba(56,225,255,.6);
+  color: #ff6a52 !important;
+  border-bottom-color: var(--red);
 }
 
-/* ---------- Tables (engineer info + bill of materials) ------------------ */
+/* ---------- Tables ------------------------------------------------------ */
 .wrapper section table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  margin: 1.3em 0;
+  border-collapse: collapse;
+  margin: 1.4em 0;
+  background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 10px;
-  overflow: hidden;
-  background: rgba(10,15,26,.6);
 }
 .wrapper section th {
-  background: linear-gradient(180deg, rgba(34,211,238,.16), rgba(34,211,238,.05));
+  background: #182635 !important;
   color: var(--head) !important;
-  border-bottom: 1px solid var(--line) !important;
+  border-bottom: 2px solid var(--red) !important;
   padding: 11px 14px;
 }
 .wrapper section td {
-  border-bottom: 1px solid rgba(34,211,238,.10) !important;
+  border-bottom: 1px solid var(--line) !important;
   padding: 10px 14px;
   color: var(--ink);
 }
 .wrapper section tr:last-child td { border-bottom: none !important; }
-.wrapper section tbody tr:hover td { background: rgba(34,211,238,.05); }
+.wrapper section tbody tr:hover td { background: rgba(232,64,42,.06); }
 
 /* ---------- Code -------------------------------------------------------- */
 .wrapper section pre,
 .wrapper section code {
-  background: #0a0f1a !important;
+  background: var(--panel) !important;
   border: 1px solid var(--line);
-  border-radius: 8px;
-  color: #d3ecff !important;
+  border-radius: 3px;
+  color: #dbe6ef !important;
 }
 .wrapper section code { padding: 2px 6px; }
 .wrapper section pre {
   padding: 16px 18px;
-  box-shadow: inset 0 0 30px rgba(34,211,238,.05);
+  border-left: 3px solid var(--red);
+  box-shadow: none;
 }
-.wrapper section pre code { border: none; padding: 0; background: transparent !important; }
+.wrapper section pre code {
+  border: none; padding: 0; background: transparent !important;
+}
 
-/* ---------- Videos & images -------------------------------------------- */
+/* ---------- Videos & images --------------------------------------------- */
 .wrapper section iframe {
   max-width: 100%;
-  border-radius: 12px;
   border: 1px solid var(--line);
-  box-shadow: 0 12px 40px rgba(0,0,0,.55), 0 0 26px rgba(34,211,238,.10);
+  border-radius: 3px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.45);
 }
-/* Frames real project photos nicely. Delete this block if your logo SVG
-   looks boxed-in before you swap in an actual photo. */
 .wrapper section img {
   max-width: 100%;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.5), 0 0 26px rgba(34,211,238,.08);
+  border-radius: 3px;
 }
 
-/* ---------- Misc content ------------------------------------------------ */
+/* ---------- Misc -------------------------------------------------------- */
 .wrapper section blockquote {
-  border-left: 3px solid var(--cyan);
-  background: rgba(34,211,238,.05);
+  border-left: 3px solid var(--red);
+  background: rgba(232,64,42,.05);
   color: var(--ink-dim);
-  border-radius: 0 8px 8px 0;
   padding: 6px 16px;
 }
 .wrapper section > hr {
-  border: none; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--line), transparent);
+  border: none;
+  height: 1px;
+  background: var(--line);
 }
 .wrapper section strong { color: var(--head); }
 
-/* ---------- Small polish ------------------------------------------------ */
-html { scroll-behavior: smooth; }
-::selection { background: rgba(56,225,255,.35); color: #fff; }
+::selection { background: var(--red); color: #fff; }
 
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: var(--bg-0); }
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--cyan), var(--blue));
-  border-radius: 8px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-}
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #0a1119; }
+::-webkit-scrollbar-thumb { background: #2b3b49; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: var(--red); }
