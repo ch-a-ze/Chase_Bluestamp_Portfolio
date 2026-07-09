@@ -64,23 +64,49 @@ body {
 }
 #header li.title, #header .title { color: var(--ink-dim) !important; }
 
-//Text column - much smaller margins than before, and no translateX nudge
-//(the nudge is what was throwing the centering off, so it's gone)
+//Text column
+//The old margin-left:23% + translateX nudge is gone. Margins are symmetric now,
+//so it centers on its own. --page-w is the only knob: raise it for a wider
+//column, lower it for a narrower one.
+:root { --page-w: 1500px; }
+
 .wrapper {
   box-sizing: border-box !important;
-  max-width: 1200px !important;
-  width: 94% !important;
+  width: 92% !important;
+  max-width: var(--page-w) !important;
   margin: 0 auto !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
+  transform: none !important;      //kill the old nudge
+  float: none !important;
 }
-.wrapper section {
+
+//Midnight hands section a fixed width and floats it. That's the thing that was
+//actually pinning the page narrow, so it has to fill the wrapper instead.
+.wrapper section,
+.wrapper #main_content,
+body section {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  float: none !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
+  margin: 0 !important;
+}
+
+//the title block should span the same width so it stays centered over the text
+#title {
   width: 100% !important;
-  float: none !important;   //Midnight floats the section, which fights the wide column
+  max-width: none !important;
+  float: none !important;
+}
+
+//percentages get silly on phones, so just go near full width
+@media (max-width: 900px) {
+  .wrapper { width: 92% !important; }
 }
 
 //title block
@@ -128,6 +154,14 @@ body {
   background: var(--red);
   //right-pointing triangle
   clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+//Prose - the column is wide now, so cap paragraph and list width for
+//readability. Videos, images, tables, and code still run the full width.
+.wrapper section > p,
+.wrapper section > ul,
+.wrapper section > ol {
+  max-width: 78ch;
 }
 
 //Links
@@ -186,11 +220,12 @@ body {
   font-size: .92rem;   //code stays compact even though body text grew
 }
 
-//Videos - block level and full column width, so the left edge lines up with the text
-//(the width="560" on the iframe tag is overridden here)
+//Videos - block level, left edge lined up with the text. Capped so they don't
+//turn into a billboard now that the column is wide.
 .wrapper section iframe {
   display: block;
   width: 100% !important;
+  max-width: 900px;
   height: auto !important;
   aspect-ratio: 16 / 9;
   margin: 1.4em 0;
@@ -230,6 +265,7 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 18px;
   margin: 1.4em 0;
+  max-width: 1100px;
 }
 .wrapper section .img-grid figure { margin: 0; }
 @media (max-width: 720px) {
@@ -249,6 +285,7 @@ body {
 .wrapper section .ba {
   position: relative;
   width: 100%;
+  max-width: 900px;         //same cap as the videos so the page stays tidy
   aspect-ratio: 4 / 3;      //change this if the mount photos are a different shape
   margin: 1.4em 0;
   border: 1px solid var(--line);
