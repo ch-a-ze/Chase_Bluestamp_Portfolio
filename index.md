@@ -39,6 +39,9 @@ A huge part of this milestone was attaching the components to the base of the ro
 
 Another challenge was that the wheels kept getting stuck. This was because the initial motor mounts that I had didn't stop the wheels from rubbing against the base, creating enough friction to stop them from turning altogether. I had to go back and re-cad the mounts and get them reprinted in order to keep the robot running smoothly.
 
+![Before Modifications](BluestampMotorMount.png)
+![After Modifications](CADMotorMount.png)
+
 For the next milestone, I'm going to have to dive into the software a lot, and work on converting drawings into shapes. I'm also going to have to calibrate pretty much every part of the robot to ensure it is as accurate as possible in making drawings.
 
 
