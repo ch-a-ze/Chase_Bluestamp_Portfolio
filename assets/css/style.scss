@@ -13,7 +13,7 @@
   --ink-dim: #8496a5;      //secondary text
   --head:    #f2f6f9;      //headings
 
-  --page-w:  1500px;       //only knob for column width - raise to go wider
+  --page-w:  1180px;       //only knob for column width - raise to go wider
 }
 
 
@@ -23,9 +23,9 @@ body {
   background: var(--bg) !important;
   background-image: none !important;
 
-  //text bumped up a touch, with a little more line spacing to match
-  font-size: 17px !important;
-  line-height: 1.7 !important;
+  //text sized up so it holds its own against the videos and images
+  font-size: 19px !important;
+  line-height: 1.72 !important;
 }
 
 //Top bar
@@ -67,11 +67,11 @@ body {
 #header li.title, #header .title { color: var(--ink-dim) !important; }
 
 //Text column
-//Symmetric margins so it centers on its own. The old margin-left:23% and the
-//translateX nudge are both gone.
+//Symmetric margins so it centers on its own. 88% keeps a real gutter on both
+//sides at every screen size, and --page-w stops it from sprawling on big monitors.
 .wrapper {
   box-sizing: border-box !important;
-  width: 92% !important;
+  width: 88% !important;
   max-width: var(--page-w) !important;
   margin: 0 auto !important;
   padding-left: 0 !important;
@@ -135,10 +135,10 @@ body section {
   text-shadow: none !important;
   letter-spacing: .3px;
 }
-//scaled up slightly so the headings keep their lead over the bigger body text
-.wrapper section > h1 { font-size: 2.05rem !important; }
-.wrapper section > h2 { font-size: 1.5rem !important; }
-.wrapper section > h3 { font-size: 1.25rem !important; }
+//rescaled against the bigger body text so the hierarchy still reads
+.wrapper section > h1 { font-size: 2.15rem !important; }
+.wrapper section > h2 { font-size: 1.55rem !important; }
+.wrapper section > h3 { font-size: 1.28rem !important; }
 
 //red wedge for sections
 .wrapper section > h1 {
@@ -149,15 +149,14 @@ body section {
 .wrapper section > h1::before {
   content: "";
   display: inline-block;
-  width: 14px; height: 14px;
+  width: 15px; height: 15px;   //nudged up to match the bigger heading
   margin-right: 12px;
   background: var(--red);
   //right-pointing triangle
   clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
-//Prose runs the full column, same as the tables. The old 78ch cap is gone,
-//which is what was making the paragraphs stop short of the table edge.
+//Prose runs the full column, same as the tables
 .wrapper section > p,
 .wrapper section > ul,
 .wrapper section > ol {
@@ -183,6 +182,7 @@ body section {
   margin: 1.4em 0;
   background: var(--panel);
   border: 1px solid var(--line);
+  font-size: .95rem;   //tables carry a lot of text, so keep the cells tighter
 }
 .wrapper section th {
   background: #182635 !important;
@@ -217,10 +217,10 @@ body section {
 }
 .wrapper section pre code {
   border: none; padding: 0; background: transparent !important;
-  font-size: .92rem;   //code stays compact even though body text grew
+  font-size: .85rem;   //code stays compact even though body text grew
 }
 
-//Videos - full column width now, so both edges line up with the tables
+//Videos - full column width, so both edges line up with the tables
 .wrapper section iframe {
   display: block;
   width: 100% !important;
@@ -251,7 +251,7 @@ body section {
 }
 .wrapper section figcaption {
   margin-top: 8px;
-  font-size: .9rem;
+  font-size: .85rem;
   color: var(--ink-dim);
   border-left: 2px solid var(--red);
   padding-left: 10px;
@@ -334,7 +334,7 @@ body section {
   position: absolute;
   top: 10px; left: 10px;
   padding: 3px 9px;
-  font-size: .72rem;
+  font-size: .7rem;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--head);
