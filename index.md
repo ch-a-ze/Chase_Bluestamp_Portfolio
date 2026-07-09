@@ -11,7 +11,7 @@ This is a drawing robot that uses a gyroscope to steer itself as it moves, so it
 
 <!--- Replace the logo below with a photo of yourself and your project once it's further along. Guide: https://tomcam.github.io/least-github-pages/adding-images-github-pages-site.html -->
 
-![Headstone Image](Logo2.svg)
+![Bluestamp Engineering Logo](Logo2.svg)
 
 <!--- Second Milestone and Final Milestone are commented out until they're done. The section headers and videos are kept so the structure stays in place. -->
 
@@ -52,6 +52,8 @@ The robot has a few main parts that all have to work with each other. The Arduin
 
 The biggest challenge at this stage was getting started. Initially, the wiring diagrams looked way too complicated to understand, so it took a few days to really start to get it, and I didn't start wiring with the breadboard until about a week in. However, it wasn't just the wires. I also had to figure out what all the parts I mentioned above actually did. We were also initially going to use an Arduino UNO, TB6612FNG motor driver, and an HC-05 for bluetooth, but we switched all of those things out for the ESP32 nano & L9110 driver, so I had to get a deeper understanding of how to wire them. Eventually, I did get it and now I have a fully functioning circuit:
 
+![Completed Circuit, Side View](SideViewLongBreadboard.jpg)
+![Completed Circuit, Top View](TopviewLongBreadboard.jpg)
 
 
 For my next milestones I plan to attach everything to the base (involves transferring the entire circuit to two smaller breadboards), get the motors and gyro working together so the robot can drive straight, and then attach the pen-lift so it can actually draw.
@@ -59,6 +61,7 @@ For my next milestones I plan to attach everything to the base (involves transfe
 # Schematics
 
 <!--- Add your schematic image here once it's made. Tinkercad (https://www.tinkercad.com/blog/official-guide-to-tinkercad-circuits) and Fritzing (https://fritzing.org/learning/) are both good options. BSE recommends Tinkercad since it runs free in the browser. -->
+![Full circuit diagram, completed version](FullCircuitDiagramChase.svg)
 
 # Code
 
