@@ -1,38 +1,28 @@
 ---
 ---
+//load theme before, so all the rules overlay onto the theme
 @import "{{ site.theme }}";
 
-/* =========================================================================
-   Bluestamp Drawing Robot — dark navy + red angular theme
-   Loads AFTER the Midnight theme, so these rules win by cascade.
-   Change the five colors in :root to recolor the whole page.
-   ========================================================================= */
-
 :root {
-  --bg:      #0e1721;   /* deep navy base            */
-  --panel:   #131f2b;   /* code blocks, table fills  */
-  --line:    #24333f;   /* neutral hairline borders  */
-  --red:     #e8402a;   /* accent                    */
+  --bg:      #0e1721;      //deep navy base
+  --panel:   #131f2b;      //code blocks, table fills
+  --line:    #24333f;      //neutral hairline borders
+  --red:     #e8402a;      //accent
   --red-dim: rgba(232,64,42,.35);
-  --ink:     #c3cfda;   /* body text                 */
-  --ink-dim: #8496a5;   /* secondary text            */
-  --head:    #f2f6f9;   /* headings                  */
+  --ink:     #c3cfda;      //body text
+  --ink-dim: #8496a5;      //secondary text
+  --head:    #f2f6f9;      //headings
 }
 
-/* ---------- Background: flat angular facets, no glow -------------------- */
-/* One SVG tile of slate triangles, soft red chevrons, and thin red
-   hairlines over a solid navy base. Fixed so it stays put on scroll.       */
+
+//Background
 body {
   color: var(--ink) !important;
-  background-color: var(--bg) !important;
-  background-attachment: fixed !important;
-  background-repeat: repeat !important;
-  background-size: 900px 900px !important;
-  background-image:
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='900' height='900' viewBox='0 0 900 900'><g fill='%2316232f' fill-opacity='0.55'><polygon points='0,0 340,0 0,300'/><polygon points='900,120 900,520 560,220'/><polygon points='180,900 620,900 380,560'/><polygon points='620,0 900,0 900,90'/></g><g fill='%231b2a38' fill-opacity='0.45'><polygon points='0,420 300,760 0,900'/><polygon points='430,60 780,420 330,380'/><polygon points='700,620 900,760 900,900 640,900'/></g><g fill='none' stroke='%23e8402a' stroke-opacity='0.10' stroke-width='26' stroke-linejoin='miter'><polyline points='-40,250 200,470 420,190'/><polyline points='520,-40 700,300 880,60'/><polyline points='300,880 520,640 760,900'/></g><g fill='none' stroke='%23e8402a' stroke-opacity='0.16' stroke-width='1.2'><polyline points='0,60 640,0'/><polyline points='900,340 300,900'/><polyline points='120,0 700,900'/><polyline points='0,700 900,470'/></g></svg>") !important;
+  background: var(--bg) !important;
+  background-image: none !important;
 }
 
-/* ---------- Top bar ----------------------------------------------------- */
+//Top bar
 #header {
   background: rgba(11,18,26,.88) !important;
   border-bottom: 2px solid var(--red) !important;
@@ -42,7 +32,7 @@ body {
 }
 #header a { color: var(--ink) !important; }
 
-/* "View On GitHub" button — flat red, no gradient */
+//change button on the header to red
 #header .fork a,
 #header li.fork a,
 #header ul li.fork a {
@@ -59,7 +49,7 @@ body {
 #header li.fork a:hover { background: #ff5238 !important; }
 #header .fork, #header li.fork { background: transparent !important; }
 
-/* Download links, if your setup shows them */
+//Download links
 #header li.downloads a {
   background: transparent !important;
   background-image: none !important;
@@ -70,7 +60,7 @@ body {
 }
 #header li.title, #header .title { color: var(--ink-dim) !important; }
 
-/* ---------- Layout: wide, uncarded text column -------------------------- */
+//Text column
 .wrapper {
   max-width: 880px !important;
   width: 90% !important;
@@ -90,12 +80,11 @@ body {
   padding-left: 0 !important;
   padding-right: 0 !important;
 
-  /* Nudge: positive moves content right, negative moves it left.
-     Set to 0 once the padding reset above centers it on its own. */
+  //nudge
   transform: translateX(50px);
 }
 
-/* ---------- Title block ------------------------------------------------- */
+//title block
 #title h1 {
   color: var(--head) !important;
   text-shadow: none !important;
@@ -112,7 +101,7 @@ body {
 #title .credits { color: var(--ink-dim); }
 #title .credits a { color: var(--red) !important; }
 
-/* ---------- Headings ---------------------------------------------------- */
+//headings
 .wrapper section > h1,
 .wrapper section > h2,
 .wrapper section > h3,
@@ -121,7 +110,7 @@ body {
   text-shadow: none !important;
   letter-spacing: .3px;
 }
-/* Section titles get a red wedge — an angular nod to the reference image */
+//red wedge for sections
 .wrapper section > h1 {
   margin-top: 1.7em;
   padding-bottom: .3em;
@@ -133,11 +122,11 @@ body {
   width: 14px; height: 14px;
   margin-right: 12px;
   background: var(--red);
-  /* right-pointing triangle, like the chevrons in the background */
+  //right-pointing triangle
   clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
-/* ---------- Links ------------------------------------------------------- */
+//Links
 .wrapper section a {
   color: var(--red) !important;
   text-decoration: none;
@@ -149,7 +138,7 @@ body {
   border-bottom-color: var(--red);
 }
 
-/* ---------- Tables ------------------------------------------------------ */
+//Tables
 .wrapper section table {
   width: 100%;
   border-collapse: collapse;
@@ -171,7 +160,7 @@ body {
 .wrapper section tr:last-child td { border-bottom: none !important; }
 .wrapper section tbody tr:hover td { background: rgba(232,64,42,.06); }
 
-/* ---------- Code -------------------------------------------------------- */
+//Code formatting
 .wrapper section pre,
 .wrapper section code {
   background: var(--panel) !important;
@@ -189,7 +178,7 @@ body {
   border: none; padding: 0; background: transparent !important;
 }
 
-/* ---------- Videos & images --------------------------------------------- */
+//Videos and Images
 .wrapper section iframe {
   max-width: 100%;
   border: 1px solid var(--line);
@@ -201,7 +190,7 @@ body {
   border-radius: 3px;
 }
 
-/* ---------- Misc -------------------------------------------------------- */
+//Miscallaneous stuff
 .wrapper section blockquote {
   border-left: 3px solid var(--red);
   background: rgba(232,64,42,.05);
