@@ -65,19 +65,442 @@ For my next milestones I plan to attach everything to the base (involves transfe
 
 # Code
 
-<!--- Paste your Milestone 1 code here once it's ready. The block below is just a placeholder from the template. Formatting guide: https://www.markdownguide.org/extended-syntax/ -->
-
+##Code at Milestone II
 ```c++
+#include <WiFi.h>
+#include <WebServer.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+#include <Servo.h>
+
+//Wi-Fi Configuration
+const char* ssid     = "WIFI_NETWORK";
+const char* password = "WIFI_PASSWORD";
+
+WebServer server(80); 
+
+//Hardware Pin Assignments (Nano ESP32 Layout)
+const int A1A = 6;  
+const int A1B = A0; 
+const int B1A = A1; 
+const int B1B = 11;
+
+const int encA1 = 2; 
+const int encA2 = 4; 
+const int encB1 = 3; 
+const int encB2 = 5; 
+
+volatile long encACount = 0;
+volatile long encBCount = 0;
+
+//Distance tracking - needs to be calibrated
+const float COUNTS_PER_MM = 3.7;   //encoder counts per 1 mm of travel
+
+//Sensor & Control Variables
+Adafruit_BNO055 bno = Adafruit_BNO055(55);
+float targetHeading = 0.0;
+const float Kp = 3.5;       
+int baseSpeed = 100;
+const int MOTOR_TRIM = 0;   //+ boosts motor A to match B - tune until it drives straight open-loop
+int rampSpeed = 0;              //working speed during a controlled stop
+const int STOP_STEP = 8;        //how fast the ramp bleeds off - lower = gentler
+const int STOP_FLOOR = 40;      //brake once it is below motor deadband is 
+int motorState = 0; //0 = Stop, 1 = Drive Straight, 2 = Left, 3 = Right
+
+//Servo (pen-lift) setup
+Servo penServo;
+const int SERVO_PIN  = 10;   //D10  
+const int SERVO_UP   = 25+90;   //pen up - straight-up position
+const int SERVO_DOWN = 25;    //pen down - 90 deg to sideways
+bool servoDown = false;      //tracks which position the servo is in
+
 void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);
-  Serial.println("Hello World!");
+  Serial.begin(115200);
+  
+  pinMode(A1A, OUTPUT); pinMode(A1B, OUTPUT);
+  pinMode(B1A, OUTPUT); pinMode(B1B, OUTPUT);
+  
+  pinMode(encA1, INPUT_PULLUP); pinMode(encA2, INPUT_PULLUP);
+  pinMode(encB1, INPUT_PULLUP); pinMode(encB2, INPUT_PULLUP);
+  
+  attachInterrupt(digitalPinToInterrupt(encA1), ISR_A, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(encB1), ISR_B, CHANGE);
+
+  //home the servo straight-up, then detach so it stops buzzing/drawing current
+  penServo.attach(SERVO_PIN, 1000, 2000);
+  penServo.write(SERVO_UP);
+  delay(400);              //let it actually reach the position
+  penServo.detach();       //cut the pulses - servo goes quiet and limp
+
+  if(!bno.begin()) {
+    Serial.println("No BNO055 detected! Check I2C wiring.");
+    while(1);
+  }
+  delay(500);
+  bno.setExtCrystalUse(true);
+
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\n Wi-Fi Connected!");
+  Serial.print("Robot IP Address: http://");
+  Serial.println(WiFi.localIP());
+
+  //Web Server Route Bindings
+  server.on("/", handleRoot);
+  server.on("/forward", handleForward);
+  server.on("/backward", handleBackward);
+  server.on("/left", handleLeft);
+  server.on("/right", handleRight);
+  server.on("/stop", handleStop);
+  server.on("/telemetry", handleTelemetry); 
+  server.on("/reset", handleReset);
+  server.on("/faster", handleFaster);
+  server.on("/slower", handleSlower);
+  server.on("/servo", handleServo);
+
+
+  
+  server.begin(); 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  server.handleClient(); 
 
+  if (motorState == 1) { //DRIVE STRAIGHT (Using Gyro Loop)
+    sensors_event_t event;
+    bno.getEvent(&event);
+    float currentHeading = event.orientation.x;
+    
+    float error = targetHeading - currentHeading;
+    if (error > 180)  error -= 360;
+    if (error < -180) error += 360;
+
+    int correction = error * Kp;
+    setMotorA(baseSpeed - correction + MOTOR_TRIM, true);
+    setMotorB(baseSpeed + correction, true);
+
+  } 
+  else if (motorState == 2) { //TURN LEFT
+    setMotorA(baseSpeed, true); 
+    setMotorB(baseSpeed, false);
+  }
+  else if (motorState == 3) { //TURN RIGHT
+    setMotorA(baseSpeed, false); 
+    setMotorB(baseSpeed, true);
+  }
+  else if (motorState == 4) { //DRIVE BACKWARD (Gyro Loop)
+    sensors_event_t event;
+    bno.getEvent(&event);
+    float currentHeading = event.orientation.x;
+
+    float error = targetHeading - currentHeading;
+    if (error > 180)  error -= 360;
+    if (error < -180) error += 360;
+
+    int correction = error * Kp;
+    setMotorA(baseSpeed + correction, false);
+    setMotorB(baseSpeed - correction, false);
+  }
+  else if (motorState == 5) { //CONTROLLED STOP - forward (hold heading while slowing)
+    sensors_event_t event;
+    bno.getEvent(&event);
+    float currentHeading = event.orientation.x;
+
+    float error = targetHeading - currentHeading;
+    if (error > 180)  error -= 360;
+    if (error < -180) error += 360;
+
+    int correction = error * Kp * (rampSpeed / (float)baseSpeed);   //scale with speed so it can't dominate as we slow
+    setMotorA(rampSpeed - correction + MOTOR_TRIM, true);
+    setMotorB(rampSpeed + correction, true);
+
+    rampSpeed -= STOP_STEP;
+    if (rampSpeed <= STOP_FLOOR) { motorState = 0; setMotorA(0, true); setMotorB(0, true); }
+  }
+  else if (motorState == 6) { //CONTROLLED STOP - backward (ramp down in reverse)
+    sensors_event_t event;
+    bno.getEvent(&event);
+    float currentHeading = event.orientation.x;
+
+    float error = targetHeading - currentHeading;
+    if (error > 180)  error -= 360;
+    if (error < -180) error += 360;
+
+    int correction = error * Kp * (rampSpeed / (float)baseSpeed);   //scale with speed so it can't dominate as we slow
+    setMotorA(rampSpeed - correction + MOTOR_TRIM, true);
+    setMotorB(rampSpeed + correction, true);
+
+    rampSpeed -= STOP_STEP;
+    if (rampSpeed <= STOP_FLOOR) { motorState = 0; setMotorA(0, true); setMotorB(0, true); }
+  }
+  delay(20);
 }
+
+//UI coding
+void handleRoot() {
+  String html = "<!DOCTYPE html><html><head>";
+  //setup
+  html += "<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>";
+  html += "<title>ROBOT CONTROL</title>";
+  html += "<style>";
+  html += "* { box-sizing: border-box; margin: 0; padding: 0; }";
+  html += "html, body { width: 100%; height: 100%; background-color: #010307; font-family: 'Segoe UI', Arial, sans-serif; overflow: hidden; display: flex; align-items: center; justify-content: center; }";
+  html += "#bgCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }";
+  html += ".dashboard { position: relative; z-index: 2; width: 92%; max-width: 500px; padding: 35px 25px; background: rgba(2, 5, 12, 0.92); border: 2px solid #00aaff; box-shadow: 0 0 35px rgba(0, 170, 255, 0.4); border-radius: 14px; backdrop-filter: blur(8px); text-align: center; }";
+  
+  //red status bar at top
+  html += ".status-bar { width: 100%; padding: 14px; margin-bottom: 25px; border-radius: 8px; font-weight: bold; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; border: 1px solid #f44336; color: #ff5252; background: rgba(244, 67, 54, 0.15); transition: all 0.3s ease; }";
+  html += ".status-bar.active { border: 1px solid #00ffdd; color: #00ffdd; background: rgba(0, 255, 221, 0.15); box-shadow: 0 0 15px rgba(0,255,221,0.2); }";
+  
+  //button configurations
+  html += ".control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }";
+  html += ".drive-row, .stop-row { grid-column: span 2; }";
+  html += ".btn { display: block; width: 100%; padding: 20px; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; text-decoration: none; border-radius: 8px; border: 2px solid transparent; transition: all 0.2s ease; cursor: pointer; user-select: none; -webkit-user-select: none; }";
+  html += ".btn-drive { color: #02050d; background-color: #00ffdd; box-shadow: 0 0 20px rgba(0, 255, 221, 0.4); }";
+  html += ".btn-turn { color: #ffffff; background-color: rgba(0, 136, 255, 0.25); border-color: #0088ff; box-shadow: 0 0 15px rgba(0, 136, 255, 0.2); }";
+  html += ".btn-stop { color: #ffffff; background-color: #e63946; box-shadow: 0 0 20px rgba(230, 57, 70, 0.4); }";
+  html += ".btn:hover { transform: translateY(-2px); filter: brightness(1.2); }";
+  html += ".btn:active { transform: translateY(1px); }";
+  html += ".telemetry { margin-top: 20px; font-size: 13px; color: #526d82; letter-spacing: 1px; font-family: monospace; }";
+  html += "</style></head><body>";
+  
+  html += "<canvas id='bgCanvas'></canvas>";
+  
+  //updates status bar when buttons clicked
+  html += "<div class='dashboard'>";
+  html += "<div id='statusText' class='status-bar'>STATUS: STOPPED</div>";
+  
+  html += "<div class='control-grid'>";
+  html += "<div class='drive-row'><button onclick='sendCommand(\"/forward\",\"STATUS: DRIVING\")' class='btn btn-drive'>Drive</button></div>";
+  html += "<div class='drive-row'><button onclick='sendCommand(\"/backward\",\"STATUS: REVERSING\")' class='btn btn-turn'>Backward</button></div>";
+  html += "<div><button onclick='sendCommand(\"/left\",\"STATUS: TURNING LEFT\")' class='btn btn-turn'>Turn Left</button></div>";
+  html += "<div><button onclick='sendCommand(\"/right\",\"STATUS: TURNING RIGHT\")' class='btn btn-turn'>Turn Right</button></div>";
+  html += "<div class='stop-row'><button onclick='sendCommand(\"/stop\",\"STATUS: STOPPED\")' class='btn btn-stop'>Stop</button></div>";
+  html += "<div class='stop-row'><button onclick='sendCommand(\"/reset\",\"STATUS: STOPPED\")' class='btn btn-turn'>Reset Distance</button></div>";
+  //toggles pen between up and sideways - empty label so status bar is untouched
+  html += "<div class='stop-row'><button onclick='sendCommand(\"/servo\",\"\")' class='btn btn-turn'>Toggle Pen</button></div>";
+  html += "<div><button onclick='sendCommand(\"/slower\",\"\")' class='btn btn-turn'>Slower</button></div>";
+  html += "<div><button onclick='sendCommand(\"/faster\",\"\")' class='btn btn-turn'>Faster</button></div>";
+  html += "</div>";
+  
+
+  html += "<div id='distanceText' class='telemetry' style='font-size:16px; color:#00ffdd; margin-bottom:6px;'>DISTANCE: 0.0 cm</div>";
+  html += "<div id='telemetryText' class='telemetry'>ENC_A: 0 | ENC_B: 0</div>";
+  html += "</div>";
+  
+  //moving dot network
+  html += "<script>";
+  html += "const canvas = document.getElementById('bgCanvas'); const ctx = canvas.getContext('2d');";
+  html += "let points = []; ";
+  html += "const numPoints = 120; "; 
+  html += "const maxDist = 300; "; 
+  
+  html += "function init() { ";
+  html += "  canvas.width = window.innerWidth; canvas.height = window.innerHeight; points = []; ";
+  html += "  for(let i=0; i<numPoints; i++) { ";
+  html += "    let isRedNet = (i > numPoints * 0.52); "; 
+  html += "    points.push({ ";
+  html += "      x: Math.random()*canvas.width, y: Math.random()*canvas.height, ";
+  //micro-adjustment to speed to keep vectors crisp
+  html += "      vx: (Math.random()-0.5)*0.5, vy: (Math.random()-0.5)*0.5, ";
+  html += "      type: isRedNet ? 'red' : 'cyan' ";
+  html += "    }); ";
+  html += "  } ";
+  html += "}";
+  
+  html += "function draw() { ";
+  html += "  ctx.clearRect(0, 0, canvas.width, canvas.height);";
+  html += "  for(let i=0; i<numPoints; i++) { ";
+  html += "    let p = points[i]; p.x += p.vx; p.y += p.vy; ";
+  html += "    if(p.x<0||p.x>canvas.width) p.vx*=-1; if(p.y<0||p.y>canvas.height) p.vy*=-1;";
+  
+  html += "    ctx.fillStyle = (p.type === 'red') ? '#ff2233' : '#00ffdd'; ";
+  html += "    ctx.beginPath(); ctx.arc(p.x, p.y, p.type === 'red' ? 2.5 : 2.0, 0, Math.PI*2); ctx.fill();";
+  
+  html += "    for(let j=i+1; j<numPoints; j++) { ";
+  html += "      let p2 = points[j]; ";
+  html += "      if(p.type === p2.type) { "; 
+  html += "        let dist = Math.hypot(p.x-p2.x, p.y-p2.y);";
+  html += "        if(dist < maxDist) { ";
+  //opacity formula for the dots
+  html += "          let alpha = (1 - dist/maxDist) * 0.65; "; 
+  html += "          ctx.strokeStyle = (p.type === 'red') ? `rgba(255, 45, 15, ${alpha})` : `rgba(0, 160, 255, ${alpha})`; ";
+  html += "          ctx.lineWidth = 1.5; "; // Thickened from 1 to 1.5 for presence
+  html += "          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); ";
+  html += "        } ";
+  html += "      } ";
+  html += "    } ";
+  html += "  } ";
+  html += "  requestAnimationFrame(draw); ";
+  html += "}";
+  
+  html += "window.addEventListener('resize', init); init(); draw();";
+  
+  html += "function sendCommand(route, labelText) {";
+  html += "  fetch(route);";
+  html += "  if(labelText === '') return;";        // speed buttons: fire request, don't touch status
+  html += "  const sBox = document.getElementById('statusText');";
+  html += "  sBox.innerText = labelText;";
+  html += "  if(labelText.includes('STOPPED')) sBox.classList.remove('active'); else sBox.classList.add('active');";
+  html += "}";
+
+  
+  html += "setInterval(() => {";
+  html += "  fetch('/telemetry').then(res => res.json()).then(data => {";
+  html += "    let cmA = (data.da/10).toFixed(1); let cmB = (data.db/10).toFixed(1); let cmAvg = (data.dist/10).toFixed(1);";
+  html += "    document.getElementById('distanceText').innerText = `DISTANCE: ${cmAvg} cm  (A ${cmA} | B ${cmB})`;";
+  html += "    document.getElementById('telemetryText').innerText = `ENC_A: ${data.a} | ENC_B: ${data.b}`;";
+  html += "    document.getElementById('telemetryText').innerText = `SPD: ${data.spd} | ENC_A: ${data.a} | ENC_B: ${data.b}`;";
+  html += "    const sBox = document.getElementById('statusText');";
+  html += "    if(data.s == 0) { sBox.innerText = 'STATUS: STOPPED'; sBox.classList.remove('active'); }";
+  html += "    else if(data.s == 1) { sBox.innerText = 'STATUS: DRIVING'; sBox.classList.add('active'); }";
+  html += "    else if(data.s == 2) { sBox.innerText = 'STATUS: TURNING LEFT'; sBox.classList.add('active'); }";
+  html += "    else if(data.s == 3) { sBox.innerText = 'STATUS: TURNING RIGHT'; sBox.classList.add('active'); }";
+  html += "    else if(data.s == 4) { sBox.innerText = 'STATUS: REVERSING'; sBox.classList.add('active'); }";
+  html += "  });";
+  html += "}, 300);"; 
+  html += "</script></body></html>";
+  
+  server.send(200, "text/html", html);
+}
+
+//background directional controls
+void handleForward() {
+  sensors_event_t event;
+  bno.getEvent(&event);
+  targetHeading = event.orientation.x; 
+  motorState = 1;
+  server.send(200, "text/plain", "OK"); 
+}
+
+void handleBackward() {
+  sensors_event_t event;
+  bno.getEvent(&event);
+  targetHeading = event.orientation.x;
+  motorState = 4;
+  server.send(200, "text/plain", "OK");
+}
+
+void handleLeft()  { motorState = 2; server.send(200, "text/plain", "OK"); }
+void handleRight() { motorState = 3; server.send(200, "text/plain", "OK"); }
+
+//stopping
+//stopping - pick the right controlled stop based on how we were moving
+void handleStop() {
+  sensors_event_t event;
+  bno.getEvent(&event);
+
+  if (motorState == 1) {          //was driving forward
+    targetHeading = event.orientation.x;
+    rampSpeed = baseSpeed;
+    motorState = 5;               //5 = controlled stop, forward
+  }
+  else if (motorState == 4) {     //was driving backward
+    targetHeading = event.orientation.x;
+    rampSpeed = baseSpeed;
+    motorState = 6;               //6 = controlled stop, backward
+  }
+  else {                          //turning or already stopped - just brake
+    motorState = 0;
+    setMotorA(0, true);
+    setMotorB(0, true);
+  }
+  server.send(200, "text/plain", "OK");
+}
+
+
+//servo toggle - flips the pen between up and sideways
+void handleServo() {
+  servoDown = !servoDown;
+  penServo.attach(SERVO_PIN, 1000, 2000);   //re-attach for the move
+  if (servoDown) {
+    penServo.write(SERVO_DOWN);   //rotate down to sideways
+  } else {
+    penServo.write(SERVO_UP);     //back to straight-up
+  }
+  delay(400);                     //give it time to actually get there
+  penServo.detach();              //stop pulsing so it stops buzzing/drawing
+  server.send(200, "text/plain", "OK");
+}
+
+
+void handleTelemetry() {
+  float distA   = encACount / COUNTS_PER_MM;      // mm
+  float distB   = encBCount / COUNTS_PER_MM;      // mm
+  float distAvg = (distA + distB) / 2.0;          // mm (forward travel)
+
+  String json = "{\"a\":" + String(encACount) +
+                ",\"b\":" + String(encBCount) +
+                ",\"da\":" + String(distA, 1) +
+                ",\"db\":" + String(distB, 1) +
+                ",\"dist\":" + String(distAvg, 1) +
+                ",\"spd\":" + String(baseSpeed) +
+                ",\"s\":" + String(motorState) + "}";
+  server.send(200, "application/json", json);
+}
+
+void handleReset() {
+  noInterrupts();
+  encACount = 0;
+  encBCount = 0;
+  interrupts();
+  server.send(200, "text/plain", "OK");
+}
+
+//Core Motor Phase Controls
+void setMotorA(int speed, bool forward) {
+  speed = constrain(speed, 0, 255);
+  if (forward) {
+    digitalWrite(A1B, HIGH);
+    analogWrite(A1A, 255 - speed);
+  } else {
+    digitalWrite(A1B, LOW);
+    analogWrite(A1A, speed);
+  }
+}
+
+void setMotorB(int speed, bool forward) {
+  speed = constrain(speed, 0, 255);
+  if (forward) {
+    digitalWrite(B1A, LOW);
+    analogWrite(B1B, speed);
+  } else {
+    digitalWrite(B1A, HIGH);
+    analogWrite(B1B, 255 - speed);
+  }
+}
+
+//speed controls
+void handleFaster() {
+  baseSpeed = constrain(baseSpeed + 20, 60, 255);
+  server.send(200, "text/plain", "OK");
+}
+void handleSlower() {
+  baseSpeed = constrain(baseSpeed - 20, 60, 255);
+  server.send(200, "text/plain", "OK");
+}
+
+//Interrupt Service Routines (monitors sensor pins for the main loop)
+void ISR_A() {
+  if (digitalRead(encA1) == digitalRead(encA2)) {
+    encACount++;
+  } else {
+    encACount--;
+  }
+}
+
+void ISR_B() {
+  if (digitalRead(encB1) == digitalRead(encB2)) {
+    encBCount--;
+  } else {
+    encBCount++;
+  }
+}
+
 ```
 
 # Bill of Materials
