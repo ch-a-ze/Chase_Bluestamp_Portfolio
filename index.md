@@ -90,7 +90,9 @@ For my next milestones I plan to attach everything to the base (involves transfe
 
 # Code
 
- >> Code at Milestone II
+> [!NOTE]
+> Code at Milestone II
+
 ```c++
 #include <WiFi.h>
 #include <WebServer.h>
