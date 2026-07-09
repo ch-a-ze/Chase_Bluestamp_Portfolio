@@ -39,16 +39,22 @@ A huge part of this milestone was attaching the components to the base of the ro
 
 Another challenge was that the wheels kept getting stuck. This was because the initial motor mounts that I had didn't stop the wheels from rubbing against the base, creating enough friction to stop them from turning altogether. I had to go back and re-cad the mounts and get them reprinted in order to keep the robot running smoothly.
 
-<!--- Before/after slider for the motor mount. The two images stack on top of
-      each other and the range input wipes between them -->
-<div class="ba" style="--pos:50%">
-  <img class="ba-before" src="BluestampMotorMount.png" alt="Original motor mount, wheels rubbing the base">
-  <img class="ba-after" src="CADMotorMount.png" alt="Re-CADded motor mount with clearance">
-  <span class="ba-line"></span>
-  <span class="ba-tag ba-tag-l">Before</span>
-  <span class="ba-tag ba-tag-r">After</span>
-  <input class="ba-range" type="range" min="0" max="100" value="50" aria-label="Drag to compare the motor mount before and after">
+<!--- Before/after swapper for the motor mount. Click the arrows to flip between
+      the original mount and the re-CADded one. Every image is in the DOM the
+      whole time, only the active one is shown. -->
+
+<div class="swap" data-i="0">
+  <img class="swap-img is-on" src="BluestampMotorMount.png" alt="Original motor mount, wheels rubbing the base">
+  <img class="swap-img" src="CADMotorMount.png" alt="Re-CADded motor mount with clearance">
+
+  <button class="swap-arrow swap-prev" aria-label="Previous image">&#10094;</button>
+  <button class="swap-arrow swap-next" aria-label="Next image">&#10095;</button>
+
+  <span class="swap-label">Before</span>
 </div>
+
+<!--- The labels the swapper cycles through, in the same order as the images -->
+<script>window.swapLabels = ["Before", "After"];</script>
 
 For the next milestone, I'm going to have to dive into the software a lot, and work on converting drawings into shapes. I'm also going to have to calibrate pretty much every part of the robot to ensure it is as accurate as possible in making drawings.
 
@@ -566,13 +572,32 @@ Other examples of drawing robots can be found below:
 
 
 
-<!--- Drives the before/after slider. Runs for every .ba block on the page,
-      so you can drop in more comparisons later without touching this. -->
+<!--- Drives the image swapper. Runs for every .swap block on the page, so you
+      can drop in more comparisons later without touching this. Wraps around at
+      both ends, so the arrows never dead-end. -->
+
 <script>
-document.querySelectorAll('.ba').forEach(function (box) {
-  var range = box.querySelector('.ba-range');
-  range.addEventListener('input', function () {
-    box.style.setProperty('--pos', range.value + '%');
+document.querySelectorAll('.swap').forEach(function (box) {
+  var imgs = box.querySelectorAll('.swap-img');
+  var label = box.querySelector('.swap-label');
+  var labels = window.swapLabels || [];
+
+  function show(next) {
+    var i = (next + imgs.length) % imgs.length;   //wrap around both directions
+    box.dataset.i = i;
+    imgs.forEach(function (img, n) {
+      img.classList.toggle('is-on', n === i);
+    });
+    if (label && labels[i]) {
+      label.textContent = labels[i];
+    }
+  }
+
+  box.querySelector('.swap-prev').addEventListener('click', function () {
+    show(Number(box.dataset.i) - 1);
+  });
+  box.querySelector('.swap-next').addEventListener('click', function () {
+    show(Number(box.dataset.i) + 1);
   });
 });
 </script>
