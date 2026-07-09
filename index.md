@@ -27,17 +27,20 @@ For your final milestone, explain the outcome of your project. Key details to in
 - What you hope to learn in the future after everything you've learned at BSE
 -->
 
-<!---
 # Second Milestone
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/y3VAmNlER5Y" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
-For your second milestone, explain what you've worked on since your previous milestone. You can highlight:
-- Technical details of what you've accomplished and how they contribute to the final goal
-- What has been surprising about the project so far
-- Previous challenges you faced that you overcame
-- What needs to be completed before your final milestone
--->
+My second milestone was a fully functional, wired robot that had all the major components in place, such as the pencil lift, the breadboards, and the DC Motors. This was a big change from the first milestone where I just had a breadboard with a bunch of wires providing connection, but there was no actual robot that could function. Now, the website my arduino shares allows me to send it commands to move forward/backward, turn both directions, lift/lower the pencil using the servo motor, and track distance traveled using the encoders. Here is what my website looks like at the second milestone:
+
+
+
+A huge part of this milestone was attaching the components to the base of the robot. I'm using an acrylic base, and initially I was going to go put the wheels on the longer sides of the robot, but due to poor measurements, I had to reformat so the robot drives straight. It's now much wider than it is long, but it has the pen lift directly in the center so it can spin around the tip as a pivot point. One other thing that I did was change it from one long breadboard to two mini breadboards, which involved rewiring every single connection.
+
+Another challenge was that the wheels kept getting stuck. This was because the initial motor mounts that I had didn't stop the wheels from rubbing against the base, creating enough friction to stop them from turning altogether. I had to go back and re-cad the mounts and get them reprinted in order to keep the robot running smoothly.
+
+For the next milestone, I'm going to have to dive into the software a lot, and work on converting drawings into shapes. I'm also going to have to calibrate pretty much every part of the robot to ensure it is as accurate as possible in making drawings.
+
 
 # First Milestone
 
@@ -47,9 +50,11 @@ My first milestone was planning out the full build and getting all the electroni
 
 The robot has a few main parts that all have to work with each other. The Arduino Nano is the brain that controls everything. Two N20 motors with encoders drive the wheels and keep track of how far the robot has moved. A BNO055 gyro measures which way the robot is facing so it can turn accurately. An SG90 servo raises and lowers the pencil/drawing utensil, a L9110 motor driver sits between the Arduino and the motors and controls their speed and direction.
 
-The biggest challenge at this stage was getting started. Initially, the wiring diagrams looked way too complicated to understand, so it took a few days to really start to get it, and I didn't start wiring with the breadboard until about a week in. However, it wasn't just the wires. I also had to figure out what all the parts I mentioned above actually did. We were also initially going to use an Arduino UNO, TB6612FNG motor driver, and an HC-05 for bluetooth, but we switched all of those things out for the nano & L9110 driver, so I had to get a deeper understanding of how to wire them. Eventually, I did get it and now I have a fully functioning circuit.
+The biggest challenge at this stage was getting started. Initially, the wiring diagrams looked way too complicated to understand, so it took a few days to really start to get it, and I didn't start wiring with the breadboard until about a week in. However, it wasn't just the wires. I also had to figure out what all the parts I mentioned above actually did. We were also initially going to use an Arduino UNO, TB6612FNG motor driver, and an HC-05 for bluetooth, but we switched all of those things out for the ESP32 nano & L9110 driver, so I had to get a deeper understanding of how to wire them. Eventually, I did get it and now I have a fully functioning circuit:
 
-For my next milestones I plan to attach everything to the base, get the motors and gyro working together so the robot can drive straight and turn to a set direction, and then add the pen-lift on so it can actually draw.
+
+
+For my next milestones I plan to attach everything to the base (involves transferring the entire circuit to two smaller breadboards), get the motors and gyro working together so the robot can drive straight, and then attach the pen-lift so it can actually draw.
 
 # Schematics
 
