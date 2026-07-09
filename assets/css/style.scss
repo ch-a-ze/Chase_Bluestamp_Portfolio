@@ -12,6 +12,8 @@
   --ink:     #c3cfda;      //body text
   --ink-dim: #8496a5;      //secondary text
   --head:    #f2f6f9;      //headings
+
+  --page-w:  1500px;       //only knob for column width - raise to go wider
 }
 
 
@@ -65,11 +67,8 @@ body {
 #header li.title, #header .title { color: var(--ink-dim) !important; }
 
 //Text column
-//The old margin-left:23% + translateX nudge is gone. Margins are symmetric now,
-//so it centers on its own. --page-w is the only knob: raise it for a wider
-//column, lower it for a narrower one.
-:root { --page-w: 1500px; }
-
+//Symmetric margins so it centers on its own. The old margin-left:23% and the
+//translateX nudge are both gone.
 .wrapper {
   box-sizing: border-box !important;
   width: 92% !important;
@@ -77,12 +76,13 @@ body {
   margin: 0 auto !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
-  transform: none !important;      //kill the old nudge
+  padding-top: 60px !important;    //clears the fixed header bar, which was sitting on the title
+  transform: none !important;
   float: none !important;
 }
 
-//Midnight hands section a fixed width and floats it. That's the thing that was
-//actually pinning the page narrow, so it has to fill the wrapper instead.
+//Midnight hands section a fixed width and floats it. That's what was pinning
+//the page narrow, so force it to fill the wrapper instead.
 .wrapper section,
 .wrapper #main_content,
 body section {
@@ -97,7 +97,7 @@ body section {
   margin: 0 !important;
 }
 
-//the title block should span the same width so it stays centered over the text
+//the title block spans the same width so it stays centered over the text
 #title {
   width: 100% !important;
   max-width: none !important;
@@ -156,12 +156,12 @@ body section {
   clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
-//Prose - the column is wide now, so cap paragraph and list width for
-//readability. Videos, images, tables, and code still run the full width.
+//Prose runs the full column, same as the tables. The old 78ch cap is gone,
+//which is what was making the paragraphs stop short of the table edge.
 .wrapper section > p,
 .wrapper section > ul,
 .wrapper section > ol {
-  max-width: 78ch;
+  max-width: none;
 }
 
 //Links
@@ -220,12 +220,10 @@ body section {
   font-size: .92rem;   //code stays compact even though body text grew
 }
 
-//Videos - block level, left edge lined up with the text. Capped so they don't
-//turn into a billboard now that the column is wide.
+//Videos - full column width now, so both edges line up with the tables
 .wrapper section iframe {
   display: block;
   width: 100% !important;
-  max-width: 900px;
   height: auto !important;
   aspect-ratio: 16 / 9;
   margin: 1.4em 0;
@@ -265,7 +263,6 @@ body section {
   grid-template-columns: 1fr 1fr;
   gap: 18px;
   margin: 1.4em 0;
-  max-width: 1100px;
 }
 .wrapper section .img-grid figure { margin: 0; }
 @media (max-width: 720px) {
@@ -279,14 +276,13 @@ body section {
   border: 1px solid var(--line);
 }
 
-//Before/After slider
-//Both images stack on top of each other. The "after" one gets clipped by a
-//clip-path driven by --pos, and the range input on top drives --pos.
-.wrapper section .ba {
+//Before/After swapper
+//All the images sit stacked in the same box. Only the one with .is-on is
+//visible, and the arrow buttons walk the index forward and back.
+.wrapper section .swap {
   position: relative;
   width: 100%;
-  max-width: 900px;         //same cap as the videos so the page stays tidy
-  aspect-ratio: 4 / 3;      //change this if the mount photos are a different shape
+  aspect-ratio: 16 / 9;     //change this if the mount photos are a different shape
   margin: 1.4em 0;
   border: 1px solid var(--line);
   border-radius: 3px;
@@ -294,7 +290,7 @@ body section {
   overflow: hidden;
   user-select: none;
 }
-.wrapper section .ba img {
+.wrapper section .swap-img {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -303,38 +299,40 @@ body section {
   border: none;
   border-radius: 0;
   margin: 0;
-  pointer-events: none;     //let the range input underneath catch the drag
-}
-.wrapper section .ba .ba-after {
-  clip-path: inset(0 0 0 var(--pos));   //hide everything left of the handle
-}
-
-//the vertical handle line
-.wrapper section .ba .ba-line {
-  position: absolute;
-  top: 0; bottom: 0;
-  left: var(--pos);
-  width: 2px;
-  margin-left: -1px;
-  background: var(--red);
+  opacity: 0;
+  transition: opacity .18s ease;
   pointer-events: none;
 }
-//the grab knob in the middle of that line
-.wrapper section .ba .ba-line::after {
-  content: "";
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 30px; height: 30px;
-  border-radius: 50%;
-  background: var(--red);
-  box-shadow: 0 0 0 3px rgba(232,64,42,.25);
-}
+.wrapper section .swap-img.is-on { opacity: 1; }
 
-//Before / After corner labels
-.wrapper section .ba .ba-tag {
+//the arrows themselves
+.wrapper section .swap-arrow {
   position: absolute;
-  top: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px; height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #ffffff;
+  background: rgba(232,64,42,.9);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease;
+}
+.wrapper section .swap-arrow:hover {
+  background: #ff5238;
+  transform: translateY(-50%) scale(1.08);
+}
+.wrapper section .swap-prev { left: 12px; }
+.wrapper section .swap-next { right: 12px; }
+
+//"Before" / "After" tag in the corner
+.wrapper section .swap-label {
+  position: absolute;
+  top: 10px; left: 10px;
   padding: 3px 9px;
   font-size: .72rem;
   letter-spacing: 1.5px;
@@ -344,32 +342,6 @@ body section {
   border: 1px solid var(--line);
   border-radius: 2px;
   pointer-events: none;
-}
-.wrapper section .ba .ba-tag-l { left: 10px; }
-.wrapper section .ba .ba-tag-r { right: 10px; }
-
-//the actual slider - stretched invisibly over the whole image
-.wrapper section .ba .ba-range {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  opacity: 0;               //invisible, but still grabbable anywhere on the image
-  cursor: ew-resize;
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-}
-.wrapper section .ba .ba-range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 44px; height: 100%;   //fat thumb so it's easy to grab on mobile
-  cursor: ew-resize;
-}
-.wrapper section .ba .ba-range::-moz-range-thumb {
-  width: 44px; height: 100vh;
-  border: none;
-  cursor: ew-resize;
 }
 
 //Miscallaneous stuff
