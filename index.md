@@ -39,8 +39,16 @@ A huge part of this milestone was attaching the components to the base of the ro
 
 Another challenge was that the wheels kept getting stuck. This was because the initial motor mounts that I had didn't stop the wheels from rubbing against the base, creating enough friction to stop them from turning altogether. I had to go back and re-cad the mounts and get them reprinted in order to keep the robot running smoothly.
 
-![Before Modifications](BluestampMotorMount.png)
-![After Modifications](CADMotorMount.png)
+<!--- Before/after slider for the motor mount. The two images stack on top of
+      each other and the range input wipes between them -->
+<div class="ba" style="--pos:50%">
+  <img class="ba-before" src="BluestampMotorMount.png" alt="Original motor mount, wheels rubbing the base">
+  <img class="ba-after" src="CADMotorMount.png" alt="Re-CADded motor mount with clearance">
+  <span class="ba-line"></span>
+  <span class="ba-tag ba-tag-l">Before</span>
+  <span class="ba-tag ba-tag-r">After</span>
+  <input class="ba-range" type="range" min="0" max="100" value="50" aria-label="Drag to compare the motor mount before and after">
+</div>
 
 For the next milestone, I'm going to have to dive into the software a lot, and work on converting drawings into shapes. I'm also going to have to calibrate pretty much every part of the robot to ensure it is as accurate as possible in making drawings.
 
@@ -55,16 +63,24 @@ The robot has a few main parts that all have to work with each other. The Arduin
 
 The biggest challenge at this stage was getting started. Initially, the wiring diagrams looked way too complicated to understand, so it took a few days to really start to get it, and I didn't start wiring with the breadboard until about a week in. However, it wasn't just the wires. I also had to figure out what all the parts I mentioned above actually did. We were also initially going to use an Arduino UNO, TB6612FNG motor driver, and an HC-05 for bluetooth, but we switched all of those things out for the ESP32 nano & L9110 driver, so I had to get a deeper understanding of how to wire them. Eventually, I did get it and now I have a fully functioning circuit:
 
-![Completed Circuit, Side View](SideViewLongBreadboard.jpg)
-![Completed Circuit, Top View](TopviewLongBreadboard.jpg)
-
+<!--- Two-up grid -->
+<div class="img-grid">
+  <figure>
+    <img src="SideViewLongBreadboard.jpg" alt="Completed circuit, side view">
+    <figcaption>Completed circuit, side view</figcaption>
+  </figure>
+  <figure>
+    <img src="TopviewLongBreadboard.jpg" alt="Completed circuit, top view">
+    <figcaption>Completed circuit, top view</figcaption>
+  </figure>
+</div>
 
 For my next milestones I plan to attach everything to the base (involves transferring the entire circuit to two smaller breadboards), get the motors and gyro working together so the robot can drive straight, and then attach the pen-lift so it can actually draw.
 
 # Schematics
 
 <!--- Add your schematic image here once it's made. Tinkercad (https://www.tinkercad.com/blog/official-guide-to-tinkercad-circuits) and Fritzing (https://fritzing.org/learning/) are both good options. BSE recommends Tinkercad since it runs free in the browser. -->
-![Full circuit diagram, completed version](FullCircuitDiagramChase.svg)
+![Full circuit diagram, completed version](FullCircuitDiagramChase.svg){: .plate }
 
 # Code
 
@@ -547,3 +563,16 @@ Other examples of drawing robots can be found below:
 - [Hackaday Drawing Robot](https://sviatil0.github.io/Sviatoslav_BSE/)
 - [Ken Olsen's Arduino Robot](https://www.instructables.com/Arduino-Drawing-Robot/)
 - [Antonio Mancuso's 3D Printed Drawing Robot](https://www.electromaker.io/blog/article/create-a-3d-printed-drawing-robot-with-arduino-54?srsltid=AfmBOoqwb62AfsNsCO_mHoxaW_undO1t0-Qz6ZHX5Y_PsWbkRKjaG6-v)
+
+
+
+<!--- Drives the before/after slider. Runs for every .ba block on the page,
+      so you can drop in more comparisons later without touching this. -->
+<script>
+document.querySelectorAll('.ba').forEach(function (box) {
+  var range = box.querySelector('.ba-range');
+  range.addEventListener('input', function () {
+    box.style.setProperty('--pos', range.value + '%');
+  });
+});
+</script>
