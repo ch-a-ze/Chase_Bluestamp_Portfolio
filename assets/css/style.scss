@@ -20,6 +20,10 @@ body {
   color: var(--ink) !important;
   background: var(--bg) !important;
   background-image: none !important;
+
+  //text bumped up a touch, with a little more line spacing to match
+  font-size: 17px !important;
+  line-height: 1.7 !important;
 }
 
 //Top bar
@@ -60,28 +64,23 @@ body {
 }
 #header li.title, #header .title { color: var(--ink-dim) !important; }
 
-//Text column
+//Text column - much smaller margins than before, and no translateX nudge
+//(the nudge is what was throwing the centering off, so it's gone)
 .wrapper {
-  max-width: 880px !important;
-  width: 90% !important;
+  box-sizing: border-box !important;
+  max-width: 1200px !important;
+  width: 94% !important;
   margin: 0 auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 .wrapper section {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
-}
-
-.wrapper {
-  box-sizing: border-box !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-
-  //nudge
-  transform: translateX(50px);
+  width: 100% !important;
+  float: none !important;   //Midnight floats the section, which fights the wide column
 }
 
 //title block
@@ -110,6 +109,11 @@ body {
   text-shadow: none !important;
   letter-spacing: .3px;
 }
+//scaled up slightly so the headings keep their lead over the bigger body text
+.wrapper section > h1 { font-size: 2.05rem !important; }
+.wrapper section > h2 { font-size: 1.5rem !important; }
+.wrapper section > h3 { font-size: 1.25rem !important; }
+
 //red wedge for sections
 .wrapper section > h1 {
   margin-top: 1.7em;
@@ -173,21 +177,162 @@ body {
   padding: 16px 18px;
   border-left: 3px solid var(--red);
   box-shadow: none;
+  //long sketch, so cap the height and let it scroll instead of eating the page
+  max-height: 620px;
+  overflow: auto;
 }
 .wrapper section pre code {
   border: none; padding: 0; background: transparent !important;
+  font-size: .92rem;   //code stays compact even though body text grew
 }
 
-//Videos and Images
+//Videos - block level and full column width, so the left edge lines up with the text
+//(the width="560" on the iframe tag is overridden here)
 .wrapper section iframe {
-  max-width: 100%;
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9;
+  margin: 1.4em 0;
   border: 1px solid var(--line);
   border-radius: 3px;
   box-shadow: 0 10px 30px rgba(0,0,0,.45);
 }
+
+//Images - plain ones sit flush left with the text, same as everything else
 .wrapper section img {
+  display: block;
   max-width: 100%;
+  height: auto;
   border-radius: 3px;
+}
+
+//Figures - an image plus a caption under it
+.wrapper section figure {
+  margin: 1.4em 0;
+}
+.wrapper section figure img {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+.wrapper section figcaption {
+  margin-top: 8px;
+  font-size: .9rem;
+  color: var(--ink-dim);
+  border-left: 2px solid var(--red);
+  padding-left: 10px;
+}
+
+//Image grid - drops two (or more) figures side by side, stacks them on phones
+.wrapper section .img-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin: 1.4em 0;
+}
+.wrapper section .img-grid figure { margin: 0; }
+@media (max-width: 720px) {
+  .wrapper section .img-grid { grid-template-columns: 1fr; }
+}
+
+//Plate - white backing for the schematic SVG, since its lines are dark
+.wrapper section img.plate {
+  background: #ffffff;
+  padding: 14px;
+  border: 1px solid var(--line);
+}
+
+//Before/After slider
+//Both images stack on top of each other. The "after" one gets clipped by a
+//clip-path driven by --pos, and the range input on top drives --pos.
+.wrapper section .ba {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;      //change this if the mount photos are a different shape
+  margin: 1.4em 0;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--panel);
+  overflow: hidden;
+  user-select: none;
+}
+.wrapper section .ba img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;      //contain, so neither CAD render gets cropped
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  pointer-events: none;     //let the range input underneath catch the drag
+}
+.wrapper section .ba .ba-after {
+  clip-path: inset(0 0 0 var(--pos));   //hide everything left of the handle
+}
+
+//the vertical handle line
+.wrapper section .ba .ba-line {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: var(--pos);
+  width: 2px;
+  margin-left: -1px;
+  background: var(--red);
+  pointer-events: none;
+}
+//the grab knob in the middle of that line
+.wrapper section .ba .ba-line::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 0 3px rgba(232,64,42,.25);
+}
+
+//Before / After corner labels
+.wrapper section .ba .ba-tag {
+  position: absolute;
+  top: 10px;
+  padding: 3px 9px;
+  font-size: .72rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--head);
+  background: rgba(14,23,33,.85);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.wrapper section .ba .ba-tag-l { left: 10px; }
+.wrapper section .ba .ba-tag-r { right: 10px; }
+
+//the actual slider - stretched invisibly over the whole image
+.wrapper section .ba .ba-range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;               //invisible, but still grabbable anywhere on the image
+  cursor: ew-resize;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+.wrapper section .ba .ba-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 44px; height: 100%;   //fat thumb so it's easy to grab on mobile
+  cursor: ew-resize;
+}
+.wrapper section .ba .ba-range::-moz-range-thumb {
+  width: 44px; height: 100vh;
+  border: none;
+  cursor: ew-resize;
 }
 
 //Miscallaneous stuff
