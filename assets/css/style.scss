@@ -83,6 +83,18 @@ body {
   padding: 0 !important;
 }
 
+.wrapper {
+  box-sizing: border-box !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+
+  /* Nudge: positive moves content right, negative moves it left.
+     Set to 0 once the padding reset above centers it on its own. */
+  transform: translateX(20px);
+}
+
 /* ---------- Title block ------------------------------------------------- */
 #title h1 {
   color: var(--head) !important;
