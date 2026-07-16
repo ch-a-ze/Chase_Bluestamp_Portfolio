@@ -27,6 +27,12 @@ For your final milestone, explain the outcome of your project. Key details to in
 - What you hope to learn in the future after everything you've learned at BSE
 -->
 
+# Final Milestone
+
+My final milestone was the finished drawing robot. It is able to interpret g-code and draw based on it's instructions. This changes for this milestone were done mostly on the software side, with a few tweaks made to the robot itself. The most notable of these tweaks were finding a perfectly-sized screw to mount into the motor holders and to stop the motor from shifting around. Another major hardware tweak was switching out the normal HB Ticonderoga pencil for a specialized 8B pencil, making it show up as a much bolder line that reduces friction. The rest was pretty much software and a ton of calibration, adjusting variables such as COUNTS_PER_MM to track distance and Backlash for adjusting the degrees for each individual motor.
+
+
+
 # Second Milestone
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/yjryAOpf4do?si=zad5AjHtgDM9Otye" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
