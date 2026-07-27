@@ -1,4 +1,4 @@
-[svg_to_gcode.py](https://github.com/user-attachments/files/30424600/svg_to_gcode.py)# Bluestamp Engineering Drawing Robot
+# Bluestamp Engineering Drawing Robot
 
 This is a drawing robot that uses a gyroscope to steer itself as it moves, so it can trace shapes and drawings onto paper. It runs on an Arduino Nano ESP32 and brings together a few different systems: motors with encoders, a gyro to track direction, a servo to lift the pen, and a bluetooth website to send it commands. 
 
