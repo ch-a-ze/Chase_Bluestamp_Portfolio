@@ -1,4 +1,4 @@
-# Bluestamp Engineering Drawing Robot
+<img width="1607" height="955" alt="Jul9WebsiteScreenshot" src="https://github.com/user-attachments/assets/4372db98-825a-4d0f-8625-55f4ce910138" /># Bluestamp Engineering Drawing Robot
 
 This is a drawing robot that uses a gyroscope to steer itself as it moves, so it can trace shapes and drawings onto paper. It runs on an Arduino Nano ESP32 and brings together a few different systems: motors with encoders, a gyro to track direction, a servo to lift the pen, and a bluetooth website to send it commands. 
 
@@ -1375,61 +1375,9 @@ The key topics I covered were coding with arduino and adafruit components such a
 
 My second milestone was a fully functional, wired robot that had all the major components in place, such as the pencil lift, the breadboards, and the DC Motors. This was a big change from the first milestone where I just had a breadboard with a bunch of wires providing connection, but there was no actual robot that could function. Now, the website my arduino shares allows me to send it commands to move forward/backward, turn both directions, lift/lower the pencil using the servo motor, and track distance traveled using the encoders. Here is what my website looks like at the second milestone:
 
-A huge part of this milestone was attaching the components to the base of the robot. I'm using an acrylic base, and initially I was going to go put the wheels on the longer sides of the robot, but due to poor measurements, I had to reformat so the robot drives straight. It's now much wider than it is long, but it has the pen lift directly in the center so it can spin around the tip as a pivot point. One other thing that I did was change it from one long breadboard to two mini breadboards, which involved rewiring every single connection.
+<img width="1607" height="955" alt="Jul9WebsiteScreenshot" src="https://github.com/user-attachments/assets/1d7734d2-22f8-4c6d-a9e3-1614f38cefad" />
 
-Another challenge was that the wheels kept getting stuck. This was because the initial motor mounts that I had didn't stop the wheels from rubbing against the base, creating enough friction to stop them from turning altogether. I had to go back and re-cad the mounts and get them reprinted in order to keep the robot running smoothly.
-
-<!--- Before/after swapper for the motor mount. Click the arrows to flip between
-      the original mount and the re-CADded one. Every image is in the DOM the
-      whole time, only the active one is shown. -->
-
-<div class="swap" data-i="0">
-  <img class="swap-img is-on" src="BluestampMotorMount.png" alt="Original motor mount, wheels rubbing the base">
-  <img class="swap-img" src="CADMotorMount.png" alt="Re-CADded motor mount with clearance">
-
-  <button class="swap-arrow swap-prev" aria-label="Previous image">&#10094;</button>
-  <button class="swap-arrow swap-next" aria-label="Next image">&#10095;</button>
-
-  <span class="swap-label">Before</span>
-</div>
-
-<!--- The labels the swapper cycles through, in the same order as the images -->
-<script>window.swapLabels = ["Before", "After"];</script>
-
-For the next milestone, I'm going to have to dive into the software a lot, and work on converting drawings into shapes. I'm also going to have to calibrate pretty much every part of the robot to ensure it is as accurate as possible in making drawings.
-
-
-# First Milestone
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/nFOEWR1XK8A?si=o8Ssw78IqVJhE14k" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
-My first milestone was planning out the full build and getting all the electronics figured out before putting the robot together.
-
-The robot has a few main parts that all have to work with each other. The Arduino Nano is the brain that controls everything. Two N20 motors with encoders drive the wheels and keep track of how far the robot has moved. A BNO055 gyro measures which way the robot is facing so it can turn accurately. An SG90 servo raises and lowers the pencil/drawing utensil, a L9110 motor driver sits between the Arduino and the motors and controls their speed and direction.
-
-The biggest challenge at this stage was getting started. Initially, the wiring diagrams looked way too complicated to understand, so it took a few days to really start to get it, and I didn't start wiring with the breadboard until about a week in. However, it wasn't just the wires. I also had to figure out what all the parts I mentioned above actually did. We were also initially going to use an Arduino UNO, TB6612FNG motor driver, and an HC-05 for bluetooth, but we switched all of those things out for the ESP32 nano & L9110 driver, so I had to get a deeper understanding of how to wire them. Eventually, I did get it and now I have a fully functioning circuit:
-
-<!--- Two-up grid -->
-<div class="img-grid">
-  <figure>
-    <img src="SideViewLongBreadboard.jpg" alt="Completed circuit, side view">
-    <figcaption>Completed circuit, side view</figcaption>
-  </figure>
-  <figure>
-    <img src="TopviewLongBreadboard.jpg" alt="Completed circuit, top view">
-    <figcaption>Completed circuit, top view</figcaption>
-  </figure>
-</div>
-
-For my next milestones I plan to attach everything to the base (involves transferring the entire circuit to two smaller breadboards), get the motors and gyro working together so the robot can drive straight, and then attach the pen-lift so it can actually draw.
-
-# Schematics
-
-<!--- Add your schematic image here once it's made. Tinkercad (https://www.tinkercad.com/blog/official-guide-to-tinkercad-circuits) and Fritzing (https://fritzing.org/learning/) are both good options. BSE recommends Tinkercad since it runs free in the browser. -->
-![Full circuit diagram, completed version](FullCircuitDiagramChase.svg){: .plate }
-
-# Code
-
+Here is my code at the second milestone:
 ## Code at Milestone II
 
 ```cpp
@@ -1868,6 +1816,60 @@ void ISR_B() {
 }
 
 ```
+
+A huge part of this milestone was attaching the components to the base of the robot. I'm using an acrylic base, and initially I was going to go put the wheels on the longer sides of the robot, but due to poor measurements, I had to reformat so the robot drives straight. It's now much wider than it is long, but it has the pen lift directly in the center so it can spin around the tip as a pivot point. One other thing that I did was change it from one long breadboard to two mini breadboards, which involved rewiring every single connection.
+
+Another challenge was that the wheels kept getting stuck. This was because the initial motor mounts that I had didn't stop the wheels from rubbing against the base, creating enough friction to stop them from turning altogether. I had to go back and re-cad the mounts and get them reprinted in order to keep the robot running smoothly.
+
+<!--- Before/after swapper for the motor mount. Click the arrows to flip between
+      the original mount and the re-CADded one. Every image is in the DOM the
+      whole time, only the active one is shown. -->
+
+<div class="swap" data-i="0">
+  <img class="swap-img is-on" src="BluestampMotorMount.png" alt="Original motor mount, wheels rubbing the base">
+  <img class="swap-img" src="CADMotorMount.png" alt="Re-CADded motor mount with clearance">
+
+  <button class="swap-arrow swap-prev" aria-label="Previous image">&#10094;</button>
+  <button class="swap-arrow swap-next" aria-label="Next image">&#10095;</button>
+
+  <span class="swap-label">Before</span>
+</div>
+
+<!--- The labels the swapper cycles through, in the same order as the images -->
+<script>window.swapLabels = ["Before", "After"];</script>
+
+For the next milestone, I'm going to have to dive into the software a lot, and work on converting drawings into shapes. I'm also going to have to calibrate pretty much every part of the robot to ensure it is as accurate as possible in making drawings.
+
+
+# First Milestone
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/nFOEWR1XK8A?si=o8Ssw78IqVJhE14k" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+My first milestone was planning out the full build and getting all the electronics figured out before putting the robot together.
+
+The robot has a few main parts that all have to work with each other. The Arduino Nano is the brain that controls everything. Two N20 motors with encoders drive the wheels and keep track of how far the robot has moved. A BNO055 gyro measures which way the robot is facing so it can turn accurately. An SG90 servo raises and lowers the pencil/drawing utensil, a L9110 motor driver sits between the Arduino and the motors and controls their speed and direction.
+
+The biggest challenge at this stage was getting started. Initially, the wiring diagrams looked way too complicated to understand, so it took a few days to really start to get it, and I didn't start wiring with the breadboard until about a week in. However, it wasn't just the wires. I also had to figure out what all the parts I mentioned above actually did. We were also initially going to use an Arduino UNO, TB6612FNG motor driver, and an HC-05 for bluetooth, but we switched all of those things out for the ESP32 nano & L9110 driver, so I had to get a deeper understanding of how to wire them. Eventually, I did get it and now I have a fully functioning circuit:
+
+<!--- Two-up grid -->
+<div class="img-grid">
+  <figure>
+    <img src="SideViewLongBreadboard.jpg" alt="Completed circuit, side view">
+    <figcaption>Completed circuit, side view</figcaption>
+  </figure>
+  <figure>
+    <img src="TopviewLongBreadboard.jpg" alt="Completed circuit, top view">
+    <figcaption>Completed circuit, top view</figcaption>
+  </figure>
+</div>
+
+For my next milestones I plan to attach everything to the base (involves transferring the entire circuit to two smaller breadboards), get the motors and gyro working together so the robot can drive straight, and then attach the pen-lift so it can actually draw.
+
+# Circuit Diagram
+
+<!--- Add your schematic image here once it's made. Tinkercad (https://www.tinkercad.com/blog/official-guide-to-tinkercad-circuits) and Fritzing (https://fritzing.org/learning/) are both good options. BSE recommends Tinkercad since it runs free in the browser. -->
+![Full circuit diagram, completed version](FullCircuitDiagramChase.svg){: .plate }
+
 
 # Bill of Materials
 
