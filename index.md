@@ -1364,10 +1364,9 @@ void handleSlower() { baseSpeed = constrain(baseSpeed - 20, 60, 255); server.sen
 ```
 
 
+There were quite a few challenges at BSE That I encountered. The first of these was getting started with my project in the first place. It seemed like a lot going in, especially to someone who had limited robotics experience. Seeing the crazy network of soldered wires the example image showed for their project didn't help much either. However, with a bit of help and lots of thinking/planning, I was finally able to start putting pieces together on a breadboard and got the circuit working by the end of the week. Another major challenge that I had to overcome was the accuracy of the robot. Pretty much by the end of the third week, all the hardware was completely finished, but the robot just couldn't draw with consistent lines and turns. This led to two full weeks of calibration and figuring out what to change on the software side, but eventually did produce a finished project that I am extremely proud of.
 
-
-
-
+The key topics I covered were coding with arduino and adafruit components such as the BNO055 sensor and the servo, which all have their own functions in C++. I also got familiar with html coding to assist with creating the website. Troubleshooting was another key topic that I had to get pretty proficient at throughout the duration of the camp. I had to use many different resources to figure out how things worked and to get them to work. In the future, I hope to continue with robotics and engineering and create more projects, learning more code, hardware, and other software.
 
 
 # Second Milestone
@@ -1375,7 +1374,6 @@ void handleSlower() { baseSpeed = constrain(baseSpeed - 20, 60, 255); server.sen
 <iframe width="560" height="315" src="https://www.youtube.com/embed/yjryAOpf4do?si=zad5AjHtgDM9Otye" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 My second milestone was a fully functional, wired robot that had all the major components in place, such as the pencil lift, the breadboards, and the DC Motors. This was a big change from the first milestone where I just had a breadboard with a bunch of wires providing connection, but there was no actual robot that could function. Now, the website my arduino shares allows me to send it commands to move forward/backward, turn both directions, lift/lower the pencil using the servo motor, and track distance traveled using the encoders. Here is what my website looks like at the second milestone:
-
 
 A huge part of this milestone was attaching the components to the base of the robot. I'm using an acrylic base, and initially I was going to go put the wheels on the longer sides of the robot, but due to poor measurements, I had to reformat so the robot drives straight. It's now much wider than it is long, but it has the pen lift directly in the center so it can spin around the tip as a pivot point. One other thing that I did was change it from one long breadboard to two mini breadboards, which involved rewiring every single connection.
 
