@@ -1,4 +1,4 @@
-<img width="1607" height="955" alt="Jul9WebsiteScreenshot" src="https://github.com/user-attachments/assets/4372db98-825a-4d0f-8625-55f4ce910138" /># Bluestamp Engineering Drawing Robot
+# Bluestamp Engineering Drawing Robot
 
 This is a drawing robot that uses a gyroscope to steer itself as it moves, so it can trace shapes and drawings onto paper. It runs on an Arduino Nano ESP32 and brings together a few different systems: motors with encoders, a gyro to track direction, a servo to lift the pen, and a bluetooth website to send it commands. 
 
