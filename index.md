@@ -36,7 +36,7 @@ Besides calibration, the robot also needed to be able to draw drawings that anyo
 Here is a screen recording of the entire process on how to get the svg file from inkscape and trace the outline:
 <iframe width="560" height="315" src="https://www.youtube.com/embed/WxKX8i-fKks?si=jRNI7UNEH1nHygfW" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-For reference, the Inkscape App can be found at this link: [https://inkscape.org/release/inkscape-1.4.4/](inkscape.org)
+For reference, the Inkscape App can be found at this link: [inkscape.org](https://inkscape.org/release/inkscape-1.4.4/)
 This can then be converted into g-code for my robot to interpret using this python script:
 ```python
 """
@@ -267,10 +267,12 @@ if __name__ == '__main__':
 ```
 
 Finally, the outputted g-code can be pasted directly into the website for the robot to read.
-If you want to view the G-code Yourself, you can use this website, [https://ncviewer.com/](ncviewer.com), paste it into the field on the left, and click plot.
-This is what the website looks like:
+If you want to view the G-code Yourself, you can use this website: [ncviewer.com](https://ncviewer.com/), paste it into the field on the left, and click plot.
+This is what my website looks like:
 
 <img width="1800" height="995" alt="Screenshot 2026-07-27 at 9 29 28 AM" src="https://github.com/user-attachments/assets/1d064393-3512-4149-aeaf-19275c6112a0" />
+
+The status bar at the top shows you what is happening (driving, turning, drawing, etc.). The move buttons on the left panel allow for manual controls of the robot, so you can use it like any remote control vehicle. The middle panel allows you to activate the servo (toggle pen), and draw squares both directions. It can also change the speed of movement and reset the distance for measuring. Finally, the right panel is used for calibration. It turns 90° both directions (or as close as it would like to go), and draws the 5-square calibration provided in the example code. It also lets you zero the heading, which can be found on the very bottom panel, to the right of the distance in yellow. The current speed is also to the right of that, and it shows each encoder rotation and finally the calibration (S0, G3, M1). When the calibration lights up in Cyan, it is ready to be run. It is calibrated by moving it around in the air for the gyro to pick up where it is. 
 
 This is the full code of the finished robot:
 
