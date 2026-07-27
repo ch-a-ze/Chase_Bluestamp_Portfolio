@@ -1,4 +1,4 @@
-# Bluestamp Engineering Drawing Robot
+# Bluestamp Engineering Gyro-Assisted Arduino Drawing Robot
 
 This is a drawing robot that uses a gyroscope to steer itself as it moves, so it can trace shapes and drawings onto paper. It runs on an Arduino Nano ESP32 and brings together a few different systems: motors with encoders, a gyro to track direction, a servo to lift the pen, and a bluetooth website to send it commands. 
 
@@ -11,7 +11,7 @@ This is a drawing robot that uses a gyroscope to steer itself as it moves, so it
 
 <!--- Replace the logo below with a photo of yourself and your project once it's further along. Guide: https://tomcam.github.io/least-github-pages/adding-images-github-pages-site.html -->
 
-![Bluestamp Engineering Logo](Logo2.svg)
+<img width="4032" height="2268" alt="PXL_20260727_180837554" src="https://github.com/user-attachments/assets/2eea6032-76db-47a8-98b1-a32d540f343a" />
 
 <!--- Second Milestone and Final Milestone are commented out until they're done. The section headers and videos are kept so the structure stays in place. -->
 
@@ -1915,7 +1915,8 @@ Other examples of drawing robots can be found below:
 - [Ken Olsen's Arduino Robot](https://www.instructables.com/Arduino-Drawing-Robot/)
 - [Antonio Mancuso's 3D Printed Drawing Robot](https://www.electromaker.io/blog/article/create-a-3d-printed-drawing-robot-with-arduino-54?srsltid=AfmBOoqwb62AfsNsCO_mHoxaW_undO1t0-Qz6ZHX5Y_PsWbkRKjaG6-v)
 
-
+Thank You Bluestamp Engineering!
+![Bluestamp Engineering Logo](Logo2.svg)
 
 <!--- Drives the image swapper. Runs for every .swap block on the page, so you
       can drop in more comparisons later without touching this. Wraps around at
