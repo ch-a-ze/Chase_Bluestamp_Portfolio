@@ -267,7 +267,9 @@ if __name__ == '__main__':
 ```
 
 Finally, the outputted g-code can be pasted directly into the website for the robot to read.
+If you want to view the G-code Yourself, you can use this website, [https://ncviewer.com/](ncviewer.com), paste it into the field on the left, and click plot.
 This is what the website looks like:
+
 <img width="1800" height="995" alt="Screenshot 2026-07-27 at 9 29 28 AM" src="https://github.com/user-attachments/assets/1d064393-3512-4149-aeaf-19275c6112a0" />
 
 This is the full code of the finished robot:
