@@ -29,6 +29,8 @@ For your final milestone, explain the outcome of your project. Key details to in
 
 # Final Milestone
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/uZXKZq54oB0?si=90rpKPe21ZTqlZSH" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 My final milestone was the finished drawing robot. It is able to interpret g-code and draw based on it's instructions. This changes for this milestone were done mostly on the software side, with a few tweaks made to the robot itself. The most notable of these tweaks were finding a perfectly-sized screw to mount into the motor holders and to stop the motor from shifting around, and switching out the normal HB Ticonderoga pencil for a specialized 8B pencil, making it show up as a much bolder line that reduces friction. The rest was pretty much software and a ton of calibration, adjusting variables such as COUNTS_PER_MM to track distance and Backlash for adjusting the degrees for each individual motor accounting for power difference and resistance and for the fact that the robot is not perfectly aligned.
 
 Besides calibration, the robot also needed to be able to draw drawings that anyone can find online. To do this, I am using the app inkscape to trace the outline of an image that I upload, which can then be downloaded as an .svg (scalable vector graphic). 
