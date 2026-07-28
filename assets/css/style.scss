@@ -1,5 +1,8 @@
 ---
 ---
+//JetBrains Mono for the code blocks. This CSS @import must sit before every other
+//rule (including the theme) - browsers ignore an @import that comes after other CSS.
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 //load theme before, so all the rules overlay onto the theme
 @import "{{ site.theme }}";
 
@@ -14,6 +17,8 @@
   --head:    #f2f6f9;      //headings
 
   --page-w:  1180px;       //only knob for column width - raise to go wider
+
+  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 }
 
 
@@ -28,9 +33,9 @@ body {
   background-color: var(--bg) !important;
   background-attachment: fixed !important;
   background-image:
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><path d='M60 0H0V60' fill='none' stroke='%232a3a48' stroke-opacity='0.35' stroke-width='1'/></svg>"),
-    radial-gradient(760px 520px at 12% 0%, rgba(232,64,42,.10), transparent 60%),
-    radial-gradient(820px 620px at 100% 100%, rgba(60,110,150,.12), transparent 60%) !important;
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><path d='M60 0H0V60' fill='none' stroke='%233a5165' stroke-opacity='0.6' stroke-width='1'/></svg>"),
+    radial-gradient(900px 620px at 12% 0%, rgba(232,64,42,.20), transparent 60%),
+    radial-gradient(980px 720px at 100% 100%, rgba(60,120,165,.24), transparent 62%) !important;
   background-size: 60px 60px, 100% 100%, 100% 100% !important;
 
   //text sized up so it holds its own against the videos and images
@@ -174,19 +179,22 @@ body section {
   display: inline-block;
   width: 15px; height: 15px;   //nudged up to match the bigger heading
   margin-right: 12px;
+  vertical-align: middle;      //centre the marker against the heading text, not the baseline
+  position: relative;
+  top: -.08em;                 //optical nudge so it lines up with the cap height
   background: var(--red);
   //right-pointing triangle
   clip-path: polygon(0 0, 100% 50%, 0 100%);
-  //soft red halo so the marker reads as a lit accent, not a flat shape
-  filter: drop-shadow(0 0 6px rgba(232,64,42,.55));
+  //two stacked halos - a tight bright one plus a wider soft one - so the glow
+  //actually reads over the busy background instead of washing out
+  filter: drop-shadow(0 0 3px rgba(232,64,42,.95)) drop-shadow(0 0 8px rgba(232,64,42,.55));
 }
 
 //h2 gets a smaller red bar on its left - marks sub-sections like "Code at Milestone II"
 .wrapper section > h2 {
   margin-top: 1.5em;
-  padding-left: 10px;
-  border-left: 3px solid var(--red);
-  box-shadow: -3px 0 10px -3px rgba(232,64,42,.5);   //faint bloom off the bar
+  padding-left: 12px;
+  border-left: 3px solid var(--red);   //clean bar only - the glow bloom read as stray lines above/below
 }
 
 //Prose runs the full column, same as the tables
@@ -248,26 +256,25 @@ body section {
   border: 1px solid var(--line);
   border-radius: 6px;
   color: #dbe6ef !important;
+  font-family: var(--mono) !important;
 }
 //inline code - a small red-tinted chip so it pops out of the prose
 .wrapper section code {
   padding: 2px 6px;
-  background: rgba(232,64,42,.08) !important;
+  background: #241a1d !important;   //solid, so the page grid/glow never shows through
   border-color: var(--red-dim);
   color: #f0c4bb !important;
+  font-size: .88em;
 }
-//Block code - dressed up like an editor window: a title bar with three dots
-//across the top, a gentle top-down gradient behind the code, and the red left
-//rail kept as the accent. Nothing about the code itself changes - the bar is
-//drawn with pseudo-elements and cleared with padding, so copy/paste is untouched.
+//Block code - styled like an editor window: a dotted title bar over a solid panel.
+//The bar is drawn with pseudo-elements and cleared with padding, so code is untouched.
 .wrapper section pre {
   position: relative;
-  padding: 44px 18px 16px;   //extra top padding leaves room for the title bar
+  padding: 44px 20px 18px 26px;   //top clears the title bar; extra left pushes code off the red rail
   border-left: 3px solid var(--red);
   border-radius: 6px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.02), transparent 120px),
-    var(--panel) !important;
+  //both stops are fully opaque, so nothing behind the block ever shows through
+  background: linear-gradient(180deg, #17242f, #0f1a24) !important;
   box-shadow: 0 12px 34px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.03);
   //long sketch, so cap the height and let it scroll instead of eating the page
   max-height: 620px;
@@ -295,8 +302,9 @@ body section {
 }
 .wrapper section pre code {
   border: none; padding: 0; background: transparent !important;
-  font-size: .85rem;   //code stays compact even though body text grew
-  line-height: 1.55;
+  font-family: var(--mono) !important;
+  font-size: .82rem;   //code stays compact even though body text grew
+  line-height: 1.45;   //tight, like a real editor - kills the double-spaced feel
 }
 //the .highlight wrapper shouldn't paint its own box on top of pre
 .wrapper section .highlight {
