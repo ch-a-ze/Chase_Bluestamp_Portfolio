@@ -42,7 +42,8 @@ body {
 #header {
   background: rgba(11,18,26,.88) !important;
   border-bottom: 2px solid var(--red) !important;
-  box-shadow: none !important;
+  //faint red bloom under the accent edge so the bar feels lit, not just outlined
+  box-shadow: 0 1px 18px rgba(232,64,42,.22) !important;
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 }
@@ -59,10 +60,15 @@ body {
   border: none !important;
   border-radius: 3px !important;
   text-shadow: none !important;
-  box-shadow: none !important;
+  box-shadow: 0 0 0 1px rgba(232,64,42,.4), 0 4px 14px rgba(232,64,42,.28) !important;
+  transition: background .15s ease, box-shadow .15s ease, transform .15s ease !important;
 }
 #header .fork a:hover,
-#header li.fork a:hover { background: #ff5238 !important; }
+#header li.fork a:hover {
+  background: #ff5238 !important;
+  box-shadow: 0 0 0 1px rgba(255,82,56,.5), 0 6px 20px rgba(232,64,42,.4) !important;
+  transform: translateY(-1px);
+}
 #header .fork, #header li.fork { background: transparent !important; }
 
 //Download links
@@ -73,6 +79,11 @@ body {
   border: 1px solid var(--line) !important;
   border-radius: 3px !important;
   text-shadow: none !important;
+  transition: color .15s ease, border-color .15s ease !important;
+}
+#header li.downloads a:hover {
+  color: var(--head) !important;
+  border-color: var(--red) !important;
 }
 #header li.title, #header .title { color: var(--ink-dim) !important; }
 
@@ -132,6 +143,8 @@ body section {
   background: var(--red) !important;
   width: 60px;
   margin: 18px auto;
+  //soft bloom so the little accent rule glows instead of sitting flat
+  box-shadow: 0 0 12px rgba(232,64,42,.6);
 }
 #title .credits { color: var(--ink-dim); }
 #title .credits a { color: var(--red) !important; }
@@ -164,6 +177,8 @@ body section {
   background: var(--red);
   //right-pointing triangle
   clip-path: polygon(0 0, 100% 50%, 0 100%);
+  //soft red halo so the marker reads as a lit accent, not a flat shape
+  filter: drop-shadow(0 0 6px rgba(232,64,42,.55));
 }
 
 //h2 gets a smaller red bar on its left - marks sub-sections like "Code at Milestone II"
@@ -171,6 +186,7 @@ body section {
   margin-top: 1.5em;
   padding-left: 10px;
   border-left: 3px solid var(--red);
+  box-shadow: -3px 0 10px -3px rgba(232,64,42,.5);   //faint bloom off the bar
 }
 
 //Prose runs the full column, same as the tables
@@ -181,15 +197,22 @@ body section {
 }
 
 //Links
+//underline is a gradient sized to 0 width, revealed left-to-right on hover so the
+//accent slides in instead of snapping - reads much more polished than a plain border
 .wrapper section a {
   color: var(--red) !important;
   text-decoration: none;
-  border-bottom: 1px solid var(--red-dim);
-  transition: border-color .15s ease, color .15s ease;
+  background-image: linear-gradient(var(--red), var(--red));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 1px;
+  padding-bottom: 1px;
+  transition: color .15s ease, background-size .2s ease;
 }
 .wrapper section a:hover {
   color: #ff6a52 !important;
-  border-bottom-color: var(--red);
+  background-image: linear-gradient(#ff6a52, #ff6a52);
+  background-size: 100% 2px;
 }
 
 //Tables
@@ -223,17 +246,52 @@ body section {
 .wrapper section code {
   background: var(--panel) !important;
   border: 1px solid var(--line);
-  border-radius: 3px;
+  border-radius: 6px;
   color: #dbe6ef !important;
 }
-.wrapper section code { padding: 2px 6px; }
+//inline code - a small red-tinted chip so it pops out of the prose
+.wrapper section code {
+  padding: 2px 6px;
+  background: rgba(232,64,42,.08) !important;
+  border-color: var(--red-dim);
+  color: #f0c4bb !important;
+}
+//Block code - dressed up like an editor window: a title bar with three dots
+//across the top, a gentle top-down gradient behind the code, and the red left
+//rail kept as the accent. Nothing about the code itself changes - the bar is
+//drawn with pseudo-elements and cleared with padding, so copy/paste is untouched.
 .wrapper section pre {
-  padding: 16px 18px;
+  position: relative;
+  padding: 44px 18px 16px;   //extra top padding leaves room for the title bar
   border-left: 3px solid var(--red);
-  box-shadow: none;
+  border-radius: 6px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.02), transparent 120px),
+    var(--panel) !important;
+  box-shadow: 0 12px 34px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.03);
   //long sketch, so cap the height and let it scroll instead of eating the page
   max-height: 620px;
   overflow: auto;
+}
+//the title bar itself - a slightly lighter strip pinned to the top of the block
+.wrapper section pre::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 30px;
+  background: linear-gradient(180deg, #1c2c3b, #16222f);
+  border-bottom: 1px solid var(--line);
+  border-radius: 6px 6px 0 0;
+}
+//three window dots - red, amber, cyan - drawn as one dot plus two box-shadows
+.wrapper section pre::after {
+  content: "";
+  position: absolute;
+  top: 11px; left: 18px;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 17px 0 0 #d4a45e, 34px 0 0 #6fb1c7;
 }
 .wrapper section pre code {
   border: none; padding: 0; background: transparent !important;
