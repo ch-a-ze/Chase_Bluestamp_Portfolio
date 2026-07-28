@@ -247,58 +247,68 @@ body section {
 .wrapper section tbody tr:hover td { background: rgba(232,64,42,.06); }
 
 //Code formatting
-//Rouge (Jekyll's highlighter) wraps blocks in .highlighter-rouge > .highlight >
-//pre. The panel styling hangs off pre; the .highlight reset below stops Rouge
-//drawing a second box inside our styled one.
+//Rouge nests .highlighter-rouge > .highlight > pre.highlight. The OUTER wrapper is
+//the block we style; the inner .highlight and pre are stripped so only one box draws.
 .wrapper section pre,
 .wrapper section code {
-  background: var(--panel) !important;
-  border: 1px solid var(--line);
-  border-radius: 6px;
   color: #dbe6ef !important;
   font-family: var(--mono) !important;
 }
-//inline code - a small red-tinted chip so it pops out of the prose
+//inline code - a small solid chip so the page never shows through it
 .wrapper section code {
   padding: 2px 6px;
-  background: #241a1d !important;   //solid, so the page grid/glow never shows through
-  border-color: var(--red-dim);
+  background: #241a1d !important;
+  border: 1px solid var(--red-dim);
+  border-radius: 6px;
   color: #f0c4bb !important;
   font-size: .88em;
 }
-//Block code - styled like an editor window: a dotted title bar over a solid panel.
-//The bar is drawn with pseudo-elements and cleared with padding, so code is untouched.
-.wrapper section pre {
+//Block code - the wrapper is the block: one solid panel, a clear border, the red
+//rail, and a dotted title bar. A solid fill means nothing behind it shows through.
+.wrapper section .highlighter-rouge {
   position: relative;
-  padding: 44px 20px 18px 26px;   //top clears the title bar; extra left pushes code off the red rail
+  margin: 1.4em 0;
+  background: #0f1a24;              //solid, opaque - the grid/glow can't bleed in
+  border: 1px solid #33475a;        //brighter than the hairlines so the edge reads
   border-left: 3px solid var(--red);
-  border-radius: 6px;
-  //both stops are fully opaque, so nothing behind the block ever shows through
-  background: linear-gradient(180deg, #17242f, #0f1a24) !important;
-  box-shadow: 0 12px 34px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.03);
-  //long sketch, so cap the height and let it scroll instead of eating the page
-  max-height: 620px;
-  overflow: auto;
+  border-radius: 8px;
+  box-shadow: 0 14px 36px rgba(0,0,0,.45);
+  overflow: hidden;                 //clip the inner pre to the rounded corners
+  padding-top: 34px;                //leaves room for the title bar strip
 }
-//the title bar itself - a slightly lighter strip pinned to the top of the block
-.wrapper section pre::before {
+//the title bar strip - sits in the padding, above the code, and stays put on scroll
+.wrapper section .highlighter-rouge::before {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 30px;
+  height: 32px;
   background: linear-gradient(180deg, #1c2c3b, #16222f);
-  border-bottom: 1px solid var(--line);
-  border-radius: 6px 6px 0 0;
+  border-bottom: 1px solid #33475a;
 }
-//three window dots - red, amber, cyan - drawn as one dot plus two box-shadows
-.wrapper section pre::after {
+//three window dots - red, amber, cyan - one dot plus two box-shadows
+.wrapper section .highlighter-rouge::after {
   content: "";
   position: absolute;
-  top: 11px; left: 18px;
+  top: 12px; left: 16px;
   width: 9px; height: 9px;
   border-radius: 50%;
   background: var(--red);
   box-shadow: 17px 0 0 #d4a45e, 34px 0 0 #6fb1c7;
+}
+//strip the inner wrapper and pre bare so the outer block is the only box
+.wrapper section .highlighter-rouge .highlight,
+.wrapper section .highlighter-rouge pre {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+//pre is the scroll area; padding is the space between the code and the block edges
+.wrapper section .highlighter-rouge pre {
+  padding: 16px 22px 18px 24px !important;
+  max-height: 620px;
+  overflow: auto;
 }
 .wrapper section pre code {
   border: none; padding: 0; background: transparent !important;
@@ -306,14 +316,6 @@ body section {
   font-size: .82rem;   //code stays compact even though body text grew
   line-height: 1.45;   //tight, like a real editor - kills the double-spaced feel
 }
-//the .highlight wrapper shouldn't paint its own box on top of pre
-.wrapper section .highlight {
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-.wrapper section .highlighter-rouge { margin: 1.4em 0; }
 
 //Rouge token colors, tuned to the navy + red palette
 .wrapper section .highlight {
