@@ -16,7 +16,7 @@
   --ink-dim: #8496a5;      //secondary text
   --head:    #f2f6f9;      //headings
 
-  --page-w:  1180px;       //only knob for column width - raise to go wider
+  --page-w:  1000px;       //only knob for column width - raise to go wider
 
   --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 }
@@ -38,8 +38,8 @@ body {
     radial-gradient(980px 720px at 100% 100%, rgba(60,120,165,.24), transparent 62%) !important;
   background-size: 60px 60px, 100% 100%, 100% 100% !important;
 
-  //text sized up so it holds its own against the videos and images
-  font-size: 19px !important;
+  //scaled to ~85% of the old sizing so 100% zoom reads like the old 80% view
+  font-size: 16px !important;
   line-height: 1.72 !important;
 }
 
@@ -164,9 +164,9 @@ body section {
   letter-spacing: .3px;
 }
 //rescaled against the bigger body text so the hierarchy still reads
-.wrapper section > h1 { font-size: 2.15rem !important; }
-.wrapper section > h2 { font-size: 1.55rem !important; }
-.wrapper section > h3 { font-size: 1.28rem !important; }
+.wrapper section > h1 { font-size: 1.83rem !important; }
+.wrapper section > h2 { font-size: 1.32rem !important; }
+.wrapper section > h3 { font-size: 1.09rem !important; }
 
 //red wedge for sections
 .wrapper section > h1 {
@@ -305,16 +305,18 @@ body section {
   margin: 0 !important;
 }
 //pre is the scroll area; padding is the space between the code and the block edges
+//line-height sits here, not on the inline code - the block's strut sets row spacing
 .wrapper section .highlighter-rouge pre {
   padding: 16px 22px 18px 24px !important;
+  line-height: 1.2 !important;   //very compact rows - no double-spaced feel
   max-height: 620px;
   overflow: auto;
 }
 .wrapper section pre code {
   border: none; padding: 0; background: transparent !important;
   font-family: var(--mono) !important;
-  font-size: .82rem;   //code stays compact even though body text grew
-  line-height: 1.45;   //tight, like a real editor - kills the double-spaced feel
+  font-size: .70rem;            //scaled with the rest of the page (~85%)
+  line-height: 1.2 !important;
 }
 
 //Rouge token colors, tuned to the navy + red palette
