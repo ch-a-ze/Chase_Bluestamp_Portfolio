@@ -18,10 +18,20 @@
 
 
 //Background
+//Dark navy base with a faint grid + two soft glows layered on so it has depth
+//instead of being one flat fill. All of it is subtle enough that text and code
+//still read cleanly on top. background-attachment:fixed keeps it put on scroll.
+//Layers, top to bottom: 60px grid lines, warm red glow (top-left), cool navy
+//glow (bottom-right), solid base color underneath.
 body {
   color: var(--ink) !important;
-  background: var(--bg) !important;
-  background-image: none !important;
+  background-color: var(--bg) !important;
+  background-attachment: fixed !important;
+  background-image:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><path d='M60 0H0V60' fill='none' stroke='%232a3a48' stroke-opacity='0.35' stroke-width='1'/></svg>"),
+    radial-gradient(760px 520px at 12% 0%, rgba(232,64,42,.10), transparent 60%),
+    radial-gradient(820px 620px at 100% 100%, rgba(60,110,150,.12), transparent 60%) !important;
+  background-size: 60px 60px, 100% 100%, 100% 100% !important;
 
   //text sized up so it holds its own against the videos and images
   font-size: 19px !important;
@@ -156,6 +166,13 @@ body section {
   clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
+//h2 gets a smaller red bar on its left - marks sub-sections like "Code at Milestone II"
+.wrapper section > h2 {
+  margin-top: 1.5em;
+  padding-left: 10px;
+  border-left: 3px solid var(--red);
+}
+
 //Prose runs the full column, same as the tables
 .wrapper section > p,
 .wrapper section > ul,
@@ -199,6 +216,9 @@ body section {
 .wrapper section tbody tr:hover td { background: rgba(232,64,42,.06); }
 
 //Code formatting
+//Rouge (Jekyll's highlighter) wraps blocks in .highlighter-rouge > .highlight >
+//pre. The panel styling hangs off pre; the .highlight reset below stops Rouge
+//drawing a second box inside our styled one.
 .wrapper section pre,
 .wrapper section code {
   background: var(--panel) !important;
@@ -218,6 +238,30 @@ body section {
 .wrapper section pre code {
   border: none; padding: 0; background: transparent !important;
   font-size: .85rem;   //code stays compact even though body text grew
+  line-height: 1.55;
+}
+//the .highlight wrapper shouldn't paint its own box on top of pre
+.wrapper section .highlight {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.wrapper section .highlighter-rouge { margin: 1.4em 0; }
+
+//Rouge token colors, tuned to the navy + red palette
+.wrapper section .highlight {
+  .c, .c1, .cm, .cs { color: #5f7d8f; font-style: italic; }   //comments
+  .cp   { color: #d98b6a; }   //preprocessor (#include, #define)
+  .k, .kd, .kn, .kr { color: #e8804f; }   //keywords (if, else, void, const)
+  .kt   { color: #6fb1c7; }   //types (int, float, bool)
+  .kc   { color: #e8804f; }   //true, false, NULL
+  .s, .s1, .s2, .se { color: #9bc48a; }   //strings
+  .mi, .mf, .mh { color: #d4a45e; }   //numbers
+  .nf   { color: #7fb2e5; }   //function names
+  .nc, .nn, .nl { color: #7fb2e5; }   //class / namespace / label
+  .o, .p { color: var(--ink); }   //operators, punctuation
+  .err  { color: var(--red); background: transparent; }
 }
 
 //Videos - full column width, so both edges line up with the tables
@@ -265,8 +309,10 @@ body section {
   margin: 1.4em 0;
 }
 .wrapper section .img-grid figure { margin: 0; }
+.wrapper section .img-grid img { height: 100%; object-fit: cover; }   //match heights when the two photos differ
 @media (max-width: 720px) {
   .wrapper section .img-grid { grid-template-columns: 1fr; }
+  .wrapper section .img-grid img { object-fit: contain; }
 }
 
 //Plate - white backing for the schematic SVG, since its lines are dark
@@ -274,6 +320,13 @@ body section {
   background: #ffffff;
   padding: 14px;
   border: 1px solid var(--line);
+}
+
+//Screenshot images that come in with baked-in width/height attrs (like the
+//ncviewer grab) - let them frame up like the other media instead of sitting bare
+.wrapper section img[width] {
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 30px rgba(0,0,0,.45);
 }
 
 //Before/After swapper
