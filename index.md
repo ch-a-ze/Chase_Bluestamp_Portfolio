@@ -35,7 +35,7 @@ My final milestone was the finished drawing robot. It is able to interpret g-cod
 
 Besides calibration, the robot also needed to be able to draw drawings that anyone can find online. To do this, I am using the app inkscape to trace the outline of an image that I upload, which can then be downloaded as an .svg (scalable vector graphic). 
 
-[This is a website catalog]([url](https://vincentvanro-bot.netlify.app/)) of all the different g-code presets already uploaded so the entire process below doesn't have to be done every single time:
+[This is a website catalog](https://vincentvanro-bot.netlify.app/) of all the different g-code presets already uploaded so the entire process below doesn't have to be done every single time:
 
 Here is a screen recording of the entire process on how to get the svg file from inkscape and trace the outline:
 <iframe width="560" height="315" src="https://www.youtube.com/embed/WxKX8i-fKks?si=jRNI7UNEH1nHygfW" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
