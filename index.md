@@ -9,35 +9,27 @@ This is a drawing robot that uses a gyroscope to steer itself as it moves, so it
 |:--:|:--:|:--:|:--:|
 | Chase L | Mtn View | Electrical Engineering | Incoming Junior |
 
-<!--- Replace the logo below with a photo of yourself and your project once it's further along. Guide: https://tomcam.github.io/least-github-pages/adding-images-github-pages-site.html -->
+
 
 <img width="4032" height="2268" alt="PXL_20260727_180837554" src="https://github.com/user-attachments/assets/2eea6032-76db-47a8-98b1-a32d540f343a" />
 
-<!--- Second Milestone and Final Milestone are commented out until they're done. The section headers and videos are kept so the structure stays in place. -->
+
 
 <!---
 # Final Milestone
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/F7M7imOVGug" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-
-For your final milestone, explain the outcome of your project. Key details to include are:
-- What you've accomplished since your previous milestone
-- What your biggest challenges and triumphs were at BSE
-- A summary of key topics you learned about
-- What you hope to learn in the future after everything you've learned at BSE
 -->
 
 # Final Milestone
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/uZXKZq54oB0?si=90rpKPe21ZTqlZSH" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-My final milestone was the finished drawing robot. It is able to interpret g-code and draw based on it's instructions. This changes for this milestone were done mostly on the software side, with a few tweaks made to the robot itself. The most notable of these tweaks were finding a perfectly-sized screw to mount into the motor holders and to stop the motor from shifting around, and switching out the normal HB Ticonderoga pencil for a specialized 8B pencil, making it show up as a much bolder line that reduces friction. The rest was pretty much software and a ton of calibration, adjusting variables such as COUNTS_PER_MM to track distance and Backlash for adjusting the degrees for each individual motor accounting for power difference and resistance and for the fact that the robot is not perfectly aligned.
+My final milestone was the finished drawing robot. It is able to interpret g-code and draw based on its instructions. The changes for this milestone were done mostly on the software side, with a few tweaks made to the robot itself. The most notable of these tweaks were finding a perfectly-sized screw to mount into the motor holders and to stop the motor from shifting around, and switching out the normal HB Ticonderoga pencil for a specialized 8B pencil, making it show up as a much bolder line that reduces friction. The rest was pretty much software and a ton of calibration, adjusting variables such as COUNTS_PER_MM to track distance and Backlash for adjusting the degrees for each individual motor accounting for power difference and resistance and for the fact that the robot is not perfectly aligned.
 
-Besides calibration, the robot also needed to be able to draw drawings that anyone can find online. To do this, I am using the app inkscape to trace the outline of an image that I upload, which can then be downloaded as an .svg (scalable vector graphic). 
+Besides calibration, the robot also needed to be able to draw drawings that anyone can find online. To do this, I am using the app Inkscape to trace the outline of an image that I upload, which can then be downloaded as an .svg (scalable vector graphic). 
 
 [This is a catalog website](https://vincentvanro-bot.netlify.app/) of all the different g-code presets already uploaded so the entire process below doesn't have to be done every single time:
 
-Here is a screen recording of the entire process on how to get the svg file from inkscape and trace the outline:
+Here is a screen recording of the entire process on how to get the svg file from Inkscape and trace the outline:
 <iframe width="560" height="315" src="https://www.youtube.com/embed/WxKX8i-fKks?si=jRNI7UNEH1nHygfW" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 For reference, the Inkscape App can be found at this link: [inkscape.org](https://inkscape.org/release/inkscape-1.4.4/)
@@ -271,7 +263,7 @@ if __name__ == '__main__':
 ```
 
 Finally, the outputted g-code can be pasted directly into the dashboard for the robot to read.
-If you want to view the G-code Yourself, you can use this website: [ncviewer.com](https://ncviewer.com/), paste it into the field on the left, and click plot.
+If you want to view the G-code yourself, you can use this website: [ncviewer.com](https://ncviewer.com/), paste it into the field on the left, and click plot.
 This is what the dashboard I am using to control the robot looks like:
 
 <img width="2560" height="1559" alt="DashboardScreenshot_new" src="https://github.com/user-attachments/assets/394b82d3-b474-4be3-a02a-327e2863faa3" />
@@ -1169,16 +1161,16 @@ void handleSlower() { baseSpeed = constrain(baseSpeed - 20, 60, 255); server.sen
 ```
 
 
-There were quite a few challenges at BSE That I encountered. The first of these was getting started with my project in the first place. It seemed like a lot going in, especially to someone who had limited robotics experience. Seeing the crazy network of soldered wires the example image showed for their project didn't help much either. However, with a bit of help and lots of thinking/planning, I was finally able to start putting pieces together on a breadboard and got the circuit working by the end of the week. Another major challenge that I had to overcome was the accuracy of the robot. Pretty much by the end of the third week, all the hardware was completely finished, but the robot just couldn't draw with consistent lines and turns. This led to two full weeks of calibration and figuring out what to change on the software side, but eventually did produce a finished project that I am extremely proud of.
+There were quite a few challenges at BSE that I encountered. The first of these was getting started with my project in the first place. It seemed like a lot going in, especially to someone who had limited robotics experience. Seeing the crazy network of soldered wires the example image showed for their project didn't help much either. However, with a bit of help and lots of thinking/planning, I was finally able to start putting pieces together on a breadboard and got the circuit working by the end of the week. Another major challenge that I had to overcome was the accuracy of the robot. Pretty much by the end of the third week, all the hardware was completely finished, but the robot just couldn't draw with consistent lines and turns. This led to two full weeks of calibration and figuring out what to change on the software side, but eventually did produce a finished project that I am extremely proud of.
 
-The key topics I covered were coding with arduino and adafruit components such as the BNO055 sensor and the servo, which all have their own functions in C++. I also got familiar with html coding to assist with creating the website. Troubleshooting was another key topic that I had to get pretty proficient at throughout the duration of the camp. I had to use many different resources to figure out how things worked and to get them to work. In the future, I hope to continue with robotics and engineering and create more projects, learning more code, hardware, and other software.
+The key topics I covered were coding with Arduino and Adafruit components such as the BNO055 sensor and the servo, which all have their own functions in C++. I also got familiar with html coding to assist with creating the website. Troubleshooting was another key topic that I had to get pretty proficient at throughout the duration of the camp. I had to use many different resources to figure out how things worked and to get them to work. In the future, I hope to continue with robotics and engineering and create more projects, learning more code, hardware, and other software.
 
 
 # Second Milestone
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/yjryAOpf4do?si=zad5AjHtgDM9Otye" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-My second milestone was a fully functional, wired robot that had all the major components in place, such as the pencil lift, the breadboards, and the DC Motors. This was a big change from the first milestone where I just had a breadboard with a bunch of wires providing connection, but there was no actual robot that could function. Now, the website my arduino shares allows me to send it commands to move forward/backward, turn both directions, lift/lower the pencil using the servo motor, and track distance traveled using the encoders. Here is what my website looks like at the second milestone:
+My second milestone was a fully functional, wired robot that had all the major components in place, such as the pencil lift, the breadboards, and the DC Motors. This was a big change from the first milestone where I just had a breadboard with a bunch of wires providing connection, but there was no actual robot that could function. Now, the website my Arduino shares allows me to send it commands to move forward/backward, turn both directions, lift/lower the pencil using the servo motor, and track distance traveled using the encoders. Here is what my website looks like at the second milestone:
 
 <img width="1607" height="955" alt="Jul9WebsiteScreenshot" src="https://github.com/user-attachments/assets/1d7734d2-22f8-4c6d-a9e3-1614f38cefad" />
 
