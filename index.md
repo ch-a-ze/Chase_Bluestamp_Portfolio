@@ -32,7 +32,7 @@ Besides calibration, the robot also needed to be able to draw drawings that anyo
 Here is a screen recording of the entire process on how to get the svg file from Inkscape and trace the outline:
 <iframe width="560" height="315" src="https://www.youtube.com/embed/WxKX8i-fKks?si=jRNI7UNEH1nHygfW" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-For reference, the Inkscape App can be found at this link: [inkscape.org](https://inkscape.org/release/inkscape-1.4.4/)
+For reference, the Inkscape App can be found at this link: [inkscape.org.](https://inkscape.org/release/inkscape-1.4.4/)
 This can then be converted into g-code for my robot to interpret using this python script:
 ```python
 """
