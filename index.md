@@ -288,42 +288,51 @@ This is the full code of the finished robot:
   lingib https://www.instructables.com/Gyro-Controlled-Robot-Plotter/
   differences: ESP32 + L9110 + Wi-Fi dashboard, gyro straightness, g-code interpretor
 **************************************************************************/
+
 #include <WiFi.h>
 #include <WebServer.h>
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <Servo.h>
+
 // --- Wi-Fi ---
 /*x
 const char* ssid     = "Bluestamps-J9";
 const char* password = "j9bestroom";
 */
-const char* ssid     = "INSERT WIFI ID HERE";
-const char* password = "INSERT WIFI PASSWORD HERE";
+
+const char* ssid     = //INSERT WIFI ID HERE;
+const char* password = //INSERT WIFI PASSWORD HERE"
 
 WebServer server(80);
+
 // --- BNO055 fusion sensor ---
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 float yaw;   //raw heading straight off the sensor
+
 // --- Pen lift ---
 Servo penServo;
 const int servoPin   = 10;      //D10
 const int SERVO_UP   = 25+90;   //pen up - straight-up
 const int SERVO_DOWN = 25;      //pen down - sideways
 bool servoDown = false;         //tracks pen position
+
 // --- L9110 motor controller (2 pins per motor, speed+dir coupled) ---
 const int A1A = 6;
 const int A1B = A0;
 const int B1A = A1;
 const int B1B = 11;
+
 // --- Wheel encoders ---
 const int enca[] = { 2, 3 };    //interrupt channel, one per motor
 const int encb[] = { 4, 5 };    //second quadrature channel
 volatile long encoderCount[2];  //signed counts, one per motor
+
 // --- Initial wheel speeds ---
 int baseSpeed = 140;            //driving speed (master)
 const int MOTOR_TRIM = 20;      //+ boosts motor A to match B
+
 // --- Heading control (gyro keeps lines straight) ---
 float targetHeading = 0.0;
 float startHeading  = 0.0;      //raw heading treated as zero (Zero Heading button)
@@ -331,13 +340,16 @@ const float Kp = 3.5;
 const float Ki = 0.05;          //kills the residual drift
 float headingIntegral = 0.0;    //running error sum - reset each drive
 const float I_WINDUP = 1000.0;  //clamp so the sum can't run away
+
 // --- Controlled stop ramp ---
 int rampSpeed = 0;              //working speed while slowing
 const int STOP_STEP = 8;        //how fast the ramp bleeds off
 const int STOP_FLOOR = 40;      //brake once below this
 int motorState = 0;             //0=stop 1=fwd 2=left 3=right 4=back 5,6=ramp
+
 // --- Distance ---
 const float COUNTS_PER_MM = 3.48;   //encoder counts per mm
+
 // --- Turns ---
 const float EPSILON_DEG  = 4.0;   //stop the turn within this many degrees
 const int   PWM_TURN_MIN = 60;    //slowest PWM that still rotates
@@ -351,6 +363,7 @@ const unsigned long TURN_TIMEOUT_MS = 4000;   //never let a turn run longer
 //the g-code converter merge away any corner shallower than it - then every corner
 //pivots (the primitive the calibration squares prove) and nothing is steered.
 const float PIVOT_MIN_DEG = 18.0;
+
 // --- Backlash compensation when turning ---
 //A turn quits EPSILON_DEG short of where it aimed and then coasts past it, so it
 //has to aim short by the difference. That difference does NOT scale with turn
@@ -363,11 +376,800 @@ const float PIVOT_MIN_DEG = 18.0;
 //than pivots through. Tune these with the Draw Test Square button.
 float BACKLASH_CW  = -12.3;  //degrees added to a clockwise turn
 float BACKLASH_CCW = 2.2;    //degrees added to a counter-clockwise turn
+
 // --- Square test-plot geometry ---
 const float SQUARE_MM  = 40.0;   //side length of the Draw Test Square check
+
 // --- G-code parameters ---
 float X = 0.0;                  //XY drawing coordinates
 float Y = 0.0;
+float I = 0.0;                  //I,J circle offsets
+float J = 0.0;
+float scaleFactor = 1.0;        //scales g-code dimensions
+bool continuousMotion = false;  //suppresses stop() during arc segments
+String gcodeBuffer = "";        //holds custom g-code from web dashboard
+
+// --- Housekeeping for cartesian tracking ---
+//Two different positions, and the difference matters:
+//  currentX/Y - where the G-CODE thinks the pen is. Ideal, exact, never measured.
+//               Arc geometry is worked out in these coordinates.
+//  actualX/Y  - where the robot ACTUALLY is, integrated from the encoders and the
+//               gyro as it drives. Steering onto a bearing curves the path, so a
+//               move lands a little short of the point it aimed at, and those
+//               shortfalls used to compound silently over a long path (the whole
+//               drawing would drift out from under the g-code). Aiming every move
+//               from the measured position instead stops that from accumulating.
+float currentX = 0.0;           //current X coordinate in mm (ideal)
+float currentY = 0.0;           //current Y coordinate in mm (ideal)
+float actualX  = 0.0;           //odometry - measured X in mm
+float actualY  = 0.0;           //odometry - measured Y in mm
+const float maxAngleStep = PI / 9.0; //step angle for drawing smooth arcs
+
+// --- Routine scheduler (0 = idle) ---
+volatile int routine = 0;
+
+// --- Forward declarations for the encoder ISRs ---
+void IRAM_ATTR encoder0ISR();
+void IRAM_ATTR encoder1ISR();
+
+//===========
+//  setup()
+//===========
+void setup() {
+  Serial.begin(115200);
+
+  setupServo();   //home the pen
+  setupMotors();  //motor pins + encoder interrupts
+
+  // --- BNO055 fusion sensor ---
+  if (!bno.begin()) {
+    Serial.println("No BNO055 detected! Check I2C wiring.");
+    while (1) { delay(10); }   //halt, but keep the watchdog fed
+  }
+  delay(500);
+  bno.setExtCrystalUse(true);
+
+  // --- Wi-Fi ---
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\n Wi-Fi Connected!");
+  Serial.print("Robot IP Address: http://");
+  Serial.println(WiFi.localIP());
+
+  // --- Web routes (this is our command interpreter) ---
+  server.on("/", handleRoot);
+  server.on("/forward", handleForward);
+  server.on("/backward", handleBackward);
+  server.on("/left", handleLeft);
+  server.on("/right", handleRight);
+  server.on("/stop", handleStop);
+  server.on("/telemetry", handleTelemetry);
+  server.on("/reset", handleReset);
+  server.on("/faster", handleFaster);
+  server.on("/slower", handleSlower);
+  server.on("/servo", handleServo);
+  server.on("/zero_heading", handleZeroHeading);
+  server.on("/cal_cw", handleCalCW);
+  server.on("/reset_origin", handleResetOrigin);
+  server.on("/custom_gcode", HTTP_POST, handleCustomGCode);
+
+  server.begin();
+}
+
+//===========
+//  loop()
+//===========
+void loop() {
+  server.handleClient();
+
+  // --- run any queued blocking routine here, not in a web handler ---
+  if (routine == 1) { motorState = 0; drawSquareCW();  routine = 0; stop(); return; }
+  if (routine == 8) { motorState = 0; runCustomGCode(); routine = 0; stop(); return; }
+
+  // --- otherwise run the manual drive/turn state machine ---
+  if (motorState == 1) {          //DRIVE STRAIGHT (gyro loop)
+    float error = headingError(targetHeading);
+    headingIntegral += error;     //accumulate leftover error, clamped
+    headingIntegral = constrain(headingIntegral, -I_WINDUP, I_WINDUP);
+    int correction = error * Kp + headingIntegral * Ki;
+    setMotorA(baseSpeed - correction + MOTOR_TRIM, true);
+    setMotorB(baseSpeed + correction, true);
+  }
+  else if (motorState == 2) {     //TURN LEFT (jog)
+    setMotorA(baseSpeed, true);
+    setMotorB(baseSpeed, false);
+  }
+  else if (motorState == 3) {     //TURN RIGHT (jog)
+    setMotorA(baseSpeed, false);
+    setMotorB(baseSpeed, true);
+  }
+  else if (motorState == 4) {     //DRIVE BACKWARD (gyro loop)
+    float error = headingError(targetHeading);
+    int correction = error * Kp;
+    setMotorA(baseSpeed + correction, false);
+    setMotorB(baseSpeed - correction, false);
+  }
+  else if (motorState == 5) {     //CONTROLLED STOP - forward
+    float error = headingError(targetHeading);
+    //keep the drive's integral so the ramp doesn't kick at the finish
+    int correction = (error * Kp + headingIntegral * Ki) * (rampSpeed / (float)baseSpeed);
+    setMotorA(rampSpeed - correction + MOTOR_TRIM, true);
+    setMotorB(rampSpeed + correction, true);
+    rampSpeed -= STOP_STEP;
+    if (rampSpeed <= STOP_FLOOR) { motorState = 0; stop(); }
+  }
+  else if (motorState == 6) {     //CONTROLLED STOP - backward
+    float error = headingError(targetHeading);
+    int correction = error * Kp * (rampSpeed / (float)baseSpeed);
+    setMotorA(rampSpeed + correction, false);   
+    //mirror of motorState 4
+    setMotorB(rampSpeed - correction, false);
+    rampSpeed -= STOP_STEP;
+    if (rampSpeed <= STOP_FLOOR) { motorState = 0; stop(); }
+  }
+  delay(20);
+}
+
+//===============
+//  turn()
+//===============
+//rotate by the given angle - POSITIVE = clockwise, closes on the gyro only
+void turn(float angle) {
+  if (angle == 0) return;
+
+  //aim short by however far it will coast past the stopping point - a flat
+  //offset, since the taper always lets go at the same speed (see the constants)
+  float backlash = (angle > 0) ? BACKLASH_CW : BACKLASH_CCW;
+  float target   = normalize360(gyroHeading() + angle + backlash);
+
+  int   pwmMax    = PWM_TURN_MAX;
+  float lastError = 0.0;
+  bool  first     = true;
+  unsigned long tStart = millis();   //timeout safety net
+
+  while (true) {
+    server.handleClient();
+    if (routine == 0) { stop(); return; }                    //aborted from the UI
+    if (millis() - tStart > TURN_TIMEOUT_MS) { stop(); return; }  //won't settle
+
+    float error = headingError(target);
+    if (fabs(error) <= EPSILON_DEG) break;                   //close enough
+
+    //overshoot: error changed sign since last pass, so we crossed the target
+    if (!first && (error * lastError < 0)) {
+      stop();
+      delay(20);       //let inertia die
+      pwmMax = max((int)(pwmMax * PWM_DECAY), PWM_TURN_MIN);
+    }
+    first = false;
+
+    int cmd = map((long)fabs(error), 0, 20, PWM_TURN_MIN, pwmMax);   //taper near target
+    cmd = constrain(cmd, PWM_TURN_MIN, pwmMax);
+
+    //to make heading INCREASE (clockwise), motor A runs false and B runs true
+    if (error > 0) { setMotorA(cmd, false); setMotorB(cmd, true); }
+    else           { setMotorA(cmd, true);  setMotorB(cmd, false); }
+
+    lastError = error;
+    delay(5);
+  }
+
+  stop();
+  delay(120);
+}
+
+//===============
+//  move() / moveHeading()
+//===============
+//drive a straight line of the given length in mm - negative reverses
+void move(float mm) {
+  moveHeading(mm, gyroHeading());   //hold whatever heading we're already on
+}
+
+//drive the given length while steering onto an absolute heading. Aiming at a
+//commanded bearing rather than the one we happen to be sitting on lets the drive
+//pull out a pivot that finished a couple of degrees off, and lets a small course
+//change be steered instead of pivoted at all - see moveTowards().
+void moveHeading(float mm, float heading) {
+  bool goForward    = (mm >= 0);
+  long targetCounts = (long)(fabs(mm) * COUNTS_PER_MM);
+
+  resetEncoders();
+  targetHeading = heading;   //steer onto this the whole way, don't just hold
+  long lastCounts = 0;
+
+  while (true) {
+    server.handleClient();
+    if (routine == 0) { stop(); return; }   //aborted from the UI
+
+    long  counts = avgCounts();
+    float h      = gyroHeading();   //one gyro read per pass, reused below
+
+    //odometry: add however far we rolled since the last pass, along the heading
+    //we actually rolled it at. Done before the exit check so the last chunk counts
+    float ds = (counts - lastCounts) / COUNTS_PER_MM;
+    lastCounts = counts;
+    if (!goForward) ds = -ds;
+    actualX += ds * sin(radians(h));
+    actualY += ds * cos(radians(h));
+
+    if (counts >= targetCounts) break;
+
+    float error      = normalize180(targetHeading - h);   //headingError(), reusing h
+    int   correction = error * Kp;
+    if (goForward) {
+      setMotorA(baseSpeed - correction + MOTOR_TRIM, true);
+      setMotorB(baseSpeed + correction, true);
+    } else {
+      setMotorA(baseSpeed + correction, false);
+      setMotorB(baseSpeed - correction, false);
+    }
+    delay(5);   //yields to Wi-Fi and feeds the watchdog
+  }
+
+  //ignore stop() when plotting arc segments
+  if (!continuousMotion) {
+    stop();
+    delay(120); //let rotor inertia die before the next
+  }
+
+  //Capture the braking coast into odometry. The loop above stops integrating the
+  //moment counts pass the target, but the robot rolls a few mm further while it
+  //brakes - and the next move's resetEncoders() would discard those counts. Left
+  //unrecorded, that few-mm overshoot repeats every segment, always forward, and
+  //sums around a closed path into a fixed closure gap. Fold it in here so odometry
+  //ends where the robot actually ended.
+  long  endCounts = avgCounts();
+  float dsCoast   = (endCounts - lastCounts) / COUNTS_PER_MM;
+  if (!goForward) dsCoast = -dsCoast;
+  float he = gyroHeading();
+  actualX += dsCoast * sin(radians(he));
+  actualY += dsCoast * cos(radians(he));
+}
+
+//================
+//  setupServo()
+//================
+void setupServo() {
+  penServo.attach(servoPin, 1000, 2000);
+  penServo.write(SERVO_UP);   //home straight-up
+  delay(400);
+  penServo.detach();          //cut pulses so it goes quiet
+}
+
+//=====================
+//  penUp() / penDown()
+//=====================
+void penUp() {
+  penServo.attach(servoPin, 1000, 2000);
+  penServo.write(SERVO_UP);
+  delay(400);
+  penServo.detach();
+  servoDown = false;
+}
+
+void penDown() {
+  penServo.attach(servoPin, 1000, 2000);
+  penServo.write(SERVO_DOWN);
+  delay(400);
+  penServo.detach();
+  servoDown = true;
+}
+
+//=============================
+//  setMotorA() / setMotorB()
+//=============================
+//L9110 phase control - speed and direction share the two pins
+void setMotorA(int speed, bool forward) {
+  speed = constrain(speed, 0, 255);
+  if (forward) { digitalWrite(A1B, HIGH); analogWrite(A1A, 255 - speed); }
+  else         { digitalWrite(A1B, LOW);  analogWrite(A1A, speed); }
+}
+
+void setMotorB(int speed, bool forward) {
+  speed = constrain(speed, 0, 255);
+  if (forward) { digitalWrite(B1A, LOW);  analogWrite(B1B, speed); }
+  else         { digitalWrite(B1A, HIGH); analogWrite(B1B, 255 - speed); }
+}
+
+//===========================
+//  stop() ... BRAKE mode
+//===========================
+//both inputs HIGH on a channel = brake; B's polarity is opposite A's
+void stop() {
+  setMotorA(0, true);
+  setMotorB(0, false);
+}
+
+//=============================
+//  setupMotors()
+//=============================
+void setupMotors() {
+  pinMode(A1A, OUTPUT); pinMode(A1B, OUTPUT);
+  pinMode(B1A, OUTPUT); pinMode(B1B, OUTPUT);
+
+  pinMode(enca[0], INPUT_PULLUP); pinMode(encb[0], INPUT_PULLUP);
+  pinMode(enca[1], INPUT_PULLUP); pinMode(encb[1], INPUT_PULLUP);
+
+  attachInterrupt(digitalPinToInterrupt(enca[0]), encoder0ISR, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(enca[1]), encoder1ISR, CHANGE);
+}
+
+//==========================
+//  encoder ISRs (quadrature)
+//==========================
+//IRAM_ATTR keeps the ISR in RAM so a tick during flash access can't crash it
+void IRAM_ATTR encoder0ISR() {
+  if (digitalRead(enca[0]) == digitalRead(encb[0])) encoderCount[0]++;
+  else                                              encoderCount[0]--;
+}
+
+void IRAM_ATTR encoder1ISR() {
+  if (digitalRead(enca[1]) == digitalRead(encb[1])) encoderCount[1]--;
+  else                                              encoderCount[1]++;
+}
+
+//===============
+//  resetEncoders() / avgCounts()
+//===============
+void resetEncoders() {
+  noInterrupts();
+  encoderCount[0] = 0;
+  encoderCount[1] = 0;
+  interrupts();
+}
+
+//average absolute travel of both wheels, in counts (abs because reverse decrements)
+long avgCounts() {
+  noInterrupts();
+  long a = encoderCount[0];
+  long b = encoderCount[1];
+  interrupts();
+  return (abs(a) + abs(b)) / 2;
+}
+
+///////////////// Gyro Functions ////////////////
+
+//======================
+//  readGyro()
+//======================
+float readGyro() {
+  sensors_event_t event;
+  bno.getEvent(&event);
+  return yaw = event.orientation.x;   //yaw (heading) in degrees
+}
+
+//======================
+//  gyroHeading()
+//======================
+//heading in 0..360, shifted by startHeading so it can be zeroed
+float gyroHeading() {
+  return normalize360(readGyro() - startHeading);
+}
+
+//======================
+//  headingError()
+//======================
+//signed shortest error from where we are to the target
+float headingError(float target) {
+  return normalize180(target - gyroHeading());
+}
+
+//=========================
+//  normalize360() / normalize180()
+//=========================
+float normalize360(float angle) {
+  angle = fmod(angle, 360.0f);
+  if (angle < 0) angle += 360.0f;
+  return angle;
+}
+
+float normalize180(float angle) {
+  angle = fmod(angle, 360.0f);
+  if (angle > 180.0f)   angle -= 360.0f;
+  if (angle <= -180.0f) angle += 360.0f;
+  return angle;
+}
+
+/////////////// Test Plots ////////////////
+
+//===============
+//  drawSquareCW()
+//===============
+//one 40mm square; all four turns exercise the matching BACKLASH value. Wired to
+//the dashboard's "Draw Test Square" button as a quick calibration check.
+void drawSquareCW() {
+  penDown();
+  for (int side = 0; side < 4; side++) {
+    if (routine == 0) { penUp(); return; }   //aborted
+    move(SQUARE_MM);
+    turn(90);        //clockwise
+  }
+  penUp();
+}
+
+///////////////// G-Code Interpreter ////////////////
+
+//==========================
+//  getValueFromMessage()
+//==========================
+//extracts numeric parameter after a command key like X or Y
+float getValueFromMessage(const String &cmd, char code, float defaultValue) {
+  int start = cmd.indexOf(code);
+  if (start == -1) return defaultValue;
+  int pos = start + 1;
+  while (pos < cmd.length() && cmd[pos] == ' ') pos++;
+  int end = pos;
+  while (end < cmd.length() && (isDigit(cmd[end]) || cmd[end] == '.' || cmd[end] == '-' || cmd[end] == '+')) {
+    end++;
+  }
+  return cmd.substring(pos, end).toFloat() * scaleFactor;
+}
+
+//========================
+//  moveTowards()
+//========================
+//turns and drives to target cartesian coordinate
+void moveTowards(float x, float y) {
+  //aim from where we MEASURED ourselves to be, at the ideal target. Using the
+  //g-code's own idea of where we are would assume every previous move landed
+  //perfectly, and quietly bake in every millimetre it didn't.
+  float dx = x - actualX;
+  float dy = y - actualY;
+  float targetAngle = atan2(dx, dy) * 180.0 / PI; //bearing from +Y (north), CW+
+  float deltaAngle  = normalize180(targetAngle - gyroHeading());
+  float dist        = sqrt(dx * dx + dy * dy);
+
+  //Only pivot for a real course change. A stop-and-turn has a dead zone it can't
+  //physically hit: it quits EPSILON_DEG short and then coasts ~12-16 deg past, so
+  //asking for less than that either doesn't move at all or overshoots wildly.
+  //That's fine for a 90 corner but ruins an arc, where every step is a few
+  //degrees - so anything under PIVOT_MIN_DEG gets steered out while rolling
+  //instead, which has no such floor and doesn't stop the wheels to do it.
+  if (fabs(deltaAngle) > PIVOT_MIN_DEG) turn(deltaAngle);
+
+  moveHeading(dist, targetAngle);   //steers onto the bearing either way
+  currentX = x;
+  currentY = y;
+}
+
+//============================
+//  drawArc()
+//============================
+//approximates circular curves using short straight line segments
+void drawArc(float targetX, float targetY, float offsetI, float offsetJ, bool cw) {
+  continuousMotion = true;
+  float centerX = currentX + offsetI;
+  float centerY = currentY + offsetJ;
+  float radius  = sqrt(offsetI * offsetI + offsetJ * offsetJ);
+  float startAngle = atan2(currentY - centerY, currentX - centerX);
+  float endAngle   = atan2(targetY - centerY, targetX - centerX);
+
+  if (startAngle < 0) startAngle += 2 * PI;
+  if (endAngle < 0)   endAngle   += 2 * PI;
+
+  float arcAngle;
+  if (cw) {
+    arcAngle = fmod((startAngle - endAngle + 2 * PI), 2 * PI);
+  } else {
+    arcAngle = fmod((endAngle - startAngle + 2 * PI), 2 * PI);
+  }
+
+  int segments = max(1, (int)(arcAngle / maxAngleStep));
+  for (int i = 1; i <= segments; i++) {
+    if (routine == 0) break;    //aborted from the UI
+    float theta;
+    if (cw) {
+      theta = startAngle - (arcAngle * i / segments);
+    } else {
+      theta = startAngle + (arcAngle * i / segments);
+    }
+    float px = centerX + radius * cos(theta);
+    float py = centerY + radius * sin(theta);
+    moveTowards(px, py);
+  }
+  continuousMotion = false;
+  stop();
+  delay(120);                   //let rotor inertia die
+  currentX = targetX;
+  currentY = targetY;
+}
+
+//======================
+//  processCommand()
+//======================
+//parses standard g-code syntax and executes corresponding movements
+void processCommand(String cmd) {
+  cmd.trim();
+  cmd.toUpperCase();
+  if (cmd.length() == 0 || cmd.startsWith(";")) return; //skip empty lines and comments
+
+  if (cmd.startsWith("G00") || cmd.startsWith("G0 ")) {
+    X = getValueFromMessage(cmd, 'X', currentX);
+    Y = getValueFromMessage(cmd, 'Y', currentY);
+    penUp();
+    moveTowards(X, Y);
+  }
+  else if (cmd.startsWith("G01") || cmd.startsWith("G1 ")) {
+    X = getValueFromMessage(cmd, 'X', currentX);
+    Y = getValueFromMessage(cmd, 'Y', currentY);
+    penDown();
+    moveTowards(X, Y);
+  }
+  else if (cmd.startsWith("G02") || cmd.startsWith("G2 ")) {
+    X = getValueFromMessage(cmd, 'X', currentX);
+    Y = getValueFromMessage(cmd, 'Y', currentY);
+    I = getValueFromMessage(cmd, 'I', 0);
+    J = getValueFromMessage(cmd, 'J', 0);
+    penDown();
+    drawArc(X, Y, I, J, true);  //clockwise arc
+  }
+  else if (cmd.startsWith("G03") || cmd.startsWith("G3 ")) {
+    X = getValueFromMessage(cmd, 'X', currentX);
+    Y = getValueFromMessage(cmd, 'Y', currentY);
+    I = getValueFromMessage(cmd, 'I', 0);
+    J = getValueFromMessage(cmd, 'J', 0);
+    penDown();
+    drawArc(X, Y, I, J, false); //counter-clockwise arc
+  }
+  else if (cmd.startsWith("PENUP")) { penUp(); }
+  else if (cmd.startsWith("PENDOWN")) { penDown(); }
+  else if (cmd.startsWith("TURN")) { turn(cmd.substring(4).toFloat()); }
+  else if (cmd.startsWith("MOVE")) { move(cmd.substring(4).toFloat()); }
+  else if (cmd.startsWith("STOP")) { stop(); }
+  else if (cmd.startsWith("SCALE")) {
+    int sp = cmd.indexOf(' ');
+    if (sp != -1) scaleFactor = cmd.substring(sp + 1).toFloat();
+  }
+}
+
+//======================
+//  runCustomGCode()
+//======================
+//executes line-by-line commands pasted from the dashboard
+void runCustomGCode() {
+  while (gcodeBuffer.length() > 0 && routine == 8) {
+    int newLine = gcodeBuffer.indexOf('\n');
+    String line;
+    if (newLine != -1) {
+      line = gcodeBuffer.substring(0, newLine);
+      gcodeBuffer = gcodeBuffer.substring(newLine + 1);
+    } else {
+      line = gcodeBuffer;
+      gcodeBuffer = "";
+    }
+    processCommand(line);
+  }
+  penUp();
+}
+
+///////////////// Web UI ////////////////
+
+//==========
+//  handleRoot() - the dashboard
+//==========
+void handleRoot() {
+  String html = "<!DOCTYPE html><html><head>";
+  html += "<meta charset='UTF-8'>";
+  html += "<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>";
+  html += "<title>Robot Control</title>";
+  html += "<style>";
+  html += "*{box-sizing:border-box;margin:0;padding:0}";
+  html += "html,body{width:100%;min-height:100%;background:#0d1117;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}";
+  html += "body{display:flex;justify-content:center;min-height:100vh;padding:22px 16px 40px;color:#e6edf3}";
+  html += ".dashboard{width:100%;max-width:600px}";
+  html += ".eyebrow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#8b949e;display:flex;align-items:center;gap:8px;margin-bottom:14px}";
+  html += ".eyebrow .dot{width:8px;height:8px;border-radius:50%;background:#e85c40}";
+  html += ".status-bar{width:100%;padding:11px;margin-bottom:16px;border-radius:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:600;font-size:13px;letter-spacing:.5px;text-align:center;border:1px solid #30363d;color:#8b949e;background:#161b22;transition:all .2s ease}";
+  html += ".status-bar.active{border-color:#e85c40;color:#e85c40;background:rgba(232,92,64,0.10)}";
+  html += ".groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}";
+  html += ".group{border:1px solid #30363d;border-radius:6px;background:#161b22;padding:13px;display:flex;flex-direction:column;gap:8px}";
+  html += ".group-label{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:#8b949e;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}";
+  html += ".row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}";
+  html += ".btn{display:block;width:100%;padding:9px 12px;font-size:14px;font-weight:600;font-family:inherit;border-radius:6px;border:1px solid #30363d;background:#21262d;color:#e6edf3;cursor:pointer;user-select:none;-webkit-user-select:none;transition:background .15s ease,border-color .15s ease}";
+  html += ".btn:hover{background:#30363d}";
+  html += ".btn:active{transform:translateY(1px)}";
+  html += ".btn-primary{background:#e85c40;color:#0d1117;border-color:transparent}";
+  html += ".btn-primary:hover{background:#f2734f}";
+  html += ".btn-stop{background:#e85c40;color:#0d1117;border-color:transparent}";
+  html += ".btn-stop:hover{background:#f2734f}";
+  html += ".telemetry-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:10px;margin-top:12px;padding:13px;border:1px solid #30363d;border-radius:6px;background:#161b22}";
+  html += ".tele{text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}";
+  html += ".tele-label{font-size:10px;letter-spacing:.6px;color:#8b949e;text-transform:uppercase}";
+  html += ".tele-val{font-size:19px;font-weight:600;margin-top:3px;color:#e6edf3;font-variant-numeric:tabular-nums}";
+  html += "textarea{width:100%;min-height:150px;background:#0d1117;color:#e6edf3;border:1px solid #30363d;border-radius:6px;padding:9px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;resize:vertical}";
+  html += "textarea:focus{outline:none;border-color:#e85c40}";
+  html += "</style></head><body>";
+
+  html += "<div class='dashboard'>";
+  html += "<div class='eyebrow'><span class='dot'></span>Gyro Robot Plotter</div>";
+  html += "<div id='statusText' class='status-bar'>STATUS: STOPPED</div>";
+  html += "<div class='groups'>";
+
+  html += "<div class='group'>";
+  html += "<div class='group-label'>Drive</div>";
+  html += "<button onclick='sendCommand(\"/forward\",\"STATUS: DRIVING\")' class='btn'>Drive</button>";
+  html += "<div class='row2'>";
+  html += "<button onclick='sendCommand(\"/left\",\"STATUS: TURNING LEFT\")' class='btn'>Left</button>";
+  html += "<button onclick='sendCommand(\"/right\",\"STATUS: TURNING RIGHT\")' class='btn'>Right</button>";
+  html += "</div>";
+  html += "<button onclick='sendCommand(\"/backward\",\"STATUS: REVERSING\")' class='btn'>Backward</button>";
+  html += "<button onclick='sendCommand(\"/stop\",\"STATUS: STOPPED\")' class='btn btn-stop'>Stop</button>";
+  html += "</div>";
+
+  html += "<div class='group'>";
+  html += "<div class='group-label'>Pen &amp; Plot</div>";
+  html += "<button onclick='sendCommand(\"/servo\",\"\")' class='btn'>Toggle Pen</button>";
+  html += "<button onclick='sendCommand(\"/cal_cw\",\"STATUS: DRAWING SQUARE\")' class='btn'>Draw Test Square</button>";
+  html += "<div class='row2'>";
+  html += "<button onclick='sendCommand(\"/slower\",\"\")' class='btn'>Slower</button>";
+  html += "<button onclick='sendCommand(\"/faster\",\"\")' class='btn'>Faster</button>";
+  html += "</div>";
+  html += "<button onclick='sendCommand(\"/zero_heading\",\"\")' class='btn'>Zero Heading</button>";
+  html += "<button onclick='sendCommand(\"/reset\",\"STATUS: STOPPED\")' class='btn'>Reset Distance</button>";
+  html += "</div>";
+
+  html += "</div>";   //end groups
+
+  html += "<div class='group' style='margin-top:12px'>";
+  html += "<div class='group-label'>G-Code</div>";
+  html += "<textarea id='gcodeBox' placeholder='Paste G-code here, or from the catalog...'></textarea>";
+  html += "<button onclick='uploadGCode()' class='btn btn-primary'>Run Custom G-Code</button>";
+  html += "<button onclick='sendCommand(\"/reset_origin\",\"\")' class='btn'>Reset Origin</button>";
+  html += "</div>";
+
+  html += "<div class='telemetry-bar'>";
+  html += "<div class='tele'><div class='tele-label'>Distance</div><div id='distanceText' class='tele-val'>0.0 cm</div></div>";
+  html += "<div class='tele'><div class='tele-label'>Heading</div><div id='headingText' class='tele-val'>0.0&deg;</div></div>";
+  html += "<div class='tele'><div class='tele-label'>Speed</div><div id='speedText' class='tele-val'>0</div></div>";
+  html += "<div class='tele'><div class='tele-label'>Encoders</div><div id='telemetryText' class='tele-val' style='font-size:14px'>A 0 | B 0</div></div>";
+  html += "<div class='tele'><div class='tele-label'>Gyro Cal</div><div id='calText' class='tele-val' style='font-size:14px;color:#8b949e'>S0 G0 M0</div></div>";
+  html += "</div>";
+
+  html += "</div>";   //end dashboard
+
+  html += "<script>";
+  html += "function sendCommand(route, labelText) {";
+  html += "  fetch(route);";
+  html += "  if(labelText === '') return;";
+  html += "  const sBox = document.getElementById('statusText');";
+  html += "  sBox.innerText = labelText;";
+  html += "  if(labelText.includes('STOPPED')) sBox.classList.remove('active'); else sBox.classList.add('active');";
+  html += "}";
+
+  html += "function uploadGCode(){";
+  html += " const txt=document.getElementById('gcodeBox').value;";
+  html += " fetch('/custom_gcode',{";
+  html += "   method:'POST',";
+  html += "   headers:{'Content-Type':'text/plain'},";
+  html += "   body:txt";
+  html += " }).then(()=>{";
+  html += "   const s=document.getElementById('statusText');";
+  html += "   s.innerText='STATUS: RUNNING CUSTOM GCODE';";
+  html += "   s.classList.add('active');";
+  html += " });";
+  html += "}";
+
+  html += "setInterval(() => {";
+  html += "  fetch('/telemetry').then(res => res.json()).then(data => {";
+  html += "    let cmAvg = (data.dist/10).toFixed(1);";
+  html += "    document.getElementById('distanceText').innerText = `${cmAvg} cm`;";
+  html += "    document.getElementById('headingText').innerText = `${data.h}°`;";
+  html += "    document.getElementById('speedText').innerText = `${data.spd}`;";
+  html += "    document.getElementById('telemetryText').innerText = `A ${data.a} | B ${data.b}`;";
+  html += "    const cal = document.getElementById('calText');";
+  html += "    cal.innerText = `S${data.cs} G${data.cg} M${data.cm}`;";
+  html += "    cal.style.color = (data.cs >= 3 && data.cg >= 3) ? '#3fb950' : '#d29922';";
+  html += "    const sBox = document.getElementById('statusText');";
+  html += "    if(data.r == 1) { sBox.innerText = 'STATUS: DRAWING SQUARE'; sBox.classList.add('active'); }";
+  html += "    else if(data.r == 8) { sBox.innerText = 'STATUS: RUNNING CUSTOM GCODE'; sBox.classList.add('active'); }";
+  html += "    else if(data.s == 0) { sBox.innerText = 'STATUS: STOPPED'; sBox.classList.remove('active'); }";
+  html += "    else if(data.s == 1) { sBox.innerText = 'STATUS: DRIVING'; sBox.classList.add('active'); }";
+  html += "    else if(data.s == 2) { sBox.innerText = 'STATUS: TURNING LEFT'; sBox.classList.add('active'); }";
+  html += "    else if(data.s == 3) { sBox.innerText = 'STATUS: TURNING RIGHT'; sBox.classList.add('active'); }";
+  html += "    else if(data.s == 4) { sBox.innerText = 'STATUS: REVERSING'; sBox.classList.add('active'); }";
+  html += "    else if(data.s == 5 || data.s == 6) { sBox.innerText = 'STATUS: SLOWING'; sBox.classList.add('active'); }";
+  html += "  });";
+  html += "}, 300);";
+  html += "</script></body></html>";
+
+  server.send(200, "text/html", html);
+}
+
+///////////////// Web Handlers ////////////////
+
+void handleForward() {
+  targetHeading = gyroHeading();
+  headingIntegral = 0.0;   //fresh start
+  motorState = 1;
+  server.send(200, "text/plain", "OK");
+}
+
+void handleBackward() {
+  targetHeading = gyroHeading();
+  motorState = 4;
+  server.send(200, "text/plain", "OK");
+}
+
+void handleLeft()  { motorState = 2; server.send(200, "text/plain", "OK"); }
+void handleRight() { motorState = 3; server.send(200, "text/plain", "OK"); }
+
+//pick the right controlled stop based on how we were moving
+void handleStop() {
+  routine = 0;   //kill any running routine first
+  if (motorState == 1)      { targetHeading = gyroHeading(); rampSpeed = baseSpeed; motorState = 5; }
+  else if (motorState == 4) { targetHeading = gyroHeading(); rampSpeed = baseSpeed; motorState = 6; }
+  else                      { motorState = 0; stop(); }
+  server.send(200, "text/plain", "OK");
+}
+
+//queue the blocking routines - return instantly, they run in loop()
+void handleCalCW()      { routine = 1; server.send(200, "text/plain", "OK"); }  //Draw Test Square
+//zeroes cartesian origin - both the ideal position and the odometry, or the two
+//would disagree from the first move and every aim would be off by the difference
+void handleResetOrigin(){
+  currentX = 0.0; currentY = 0.0;
+  actualX  = 0.0; actualY  = 0.0;
+  server.send(200, "text/plain", "OK");
+}
+
+void handleCustomGCode() {                                                      //receives custom gcode block
+  if (server.hasArg("plain")) {
+    gcodeBuffer = server.arg("plain");
+    routine = 8;
+    server.send(200, "text/plain", "OK");
+  } else {
+    server.send(400, "text/plain", "NO DATA");
+  }
+}
+
+//pen toggle from the dashboard
+void handleServo() {
+  if (servoDown) penUp(); else penDown();
+  server.send(200, "text/plain", "OK");
+}
+
+void handleTelemetry() {
+  float distA   = encoderCount[0] / COUNTS_PER_MM;
+  float distB   = encoderCount[1] / COUNTS_PER_MM;
+  float distAvg = (distA + distB) / 2.0;
+
+  //BNO055 calibration state, 0 (uncalibrated) to 3 (fully calibrated) per subsystem.
+  //Yaw only holds steady once sys and gyro read 3; drawing before then is what puts
+  //the loop's finish off from its start. mag drifts near the running motors' magnets.
+  uint8_t cSys, cGyro, cAccel, cMag;
+  bno.getCalibration(&cSys, &cGyro, &cAccel, &cMag);
+
+  String json = "{\"a\":" + String(encoderCount[0]) +
+                ",\"b\":" + String(encoderCount[1]) +
+                ",\"dist\":" + String(distAvg, 1) +
+                ",\"spd\":" + String(baseSpeed) +
+                ",\"h\":" + String(gyroHeading(), 1) +
+                ",\"r\":" + String(routine) +
+                ",\"cs\":" + String(cSys) +
+                ",\"cg\":" + String(cGyro) +
+                ",\"cm\":" + String(cMag) +
+                ",\"s\":" + String(motorState) + "}";
+  server.send(200, "application/json", json);
+}
+
+void handleReset() {
+  resetEncoders();
+  server.send(200, "text/plain", "OK");
+}
+
+//zero the heading reference
+void handleZeroHeading() {
+  startHeading = readGyro();
+  server.send(200, "text/plain", "OK");
+}
+
+//speed controls
+void handleFaster() { baseSpeed = constrain(baseSpeed + 20, 60, 255); server.send(200, "text/plain", "OK"); }
+void handleSlower() { baseSpeed = constrain(baseSpeed - 20, 60, 255); server.send(200, "text/plain", "OK"); }
 ```
 
 
