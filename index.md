@@ -1,4 +1,4 @@
-# Bluestamp Engineering Gyro-Assisted Arduino Drawing Robot
+# Vincent Van Roh -bot
 
 This is a drawing robot that uses a gyroscope to steer itself as it moves, so it can trace shapes and drawings onto paper. It runs on an Arduino Nano ESP32 and brings together a few different systems: motors with encoders, an IMU to track direction, a servo to lift the pen, and a Wi-Fi website to send it commands. 
 
