@@ -297,10 +297,6 @@ This is the full code of the finished robot:
 #include <Servo.h>
 
 // --- Wi-Fi ---
-/*x
-const char* ssid     = "Bluestamps-J9";
-const char* password = "j9bestroom";
-*/
 
 const char* ssid     = //INSERT WIFI ID HERE;
 const char* password = //INSERT WIFI PASSWORD HERE"
