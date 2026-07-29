@@ -276,7 +276,7 @@ This is what the dashboard I am using to control the robot looks like:
 
 <img width="2560" height="1559" alt="DashboardScreenshot_new" src="https://github.com/user-attachments/assets/394b82d3-b474-4be3-a02a-327e2863faa3" />
 
-The status bar at the top shows you what's happening (driving, turning, drawing, etc.). The Drive panel gives you manual control, so you can use it like any remote-control vehicle — forward, backward, turn both directions, and a Stop. The Pen & Plot panel toggles the servo (lifts/lowers the pen), draws a single test square, changes the movement speed, resets the distance, and zeroes the heading. Below that, the G‑Code panel is where the drawing actually happens: paste in your g-code and hit Run Custom G‑Code (or Run Test for the built-in pattern, and Reset Origin to set the start point). The bottom bar is telemetry — distance, heading, speed, each encoder's count, and the gyro calibration (S, G, M). When the calibration reads all 3s and lights up green, it's ready to run; you calibrate it by moving the robot around in the air so the gyro can figure out where it is. This website changed quite a bit from the previous version, with new colors and buttons for g-code.
+The status bar at the top shows you what's happening (driving, turning, drawing, etc.). The Drive panel gives you manual control, so you can use it like any remote-control vehicle — forward, backward, turn both directions, and a Stop. The Pen & Plot panel toggles the servo (lifts/lowers the pen), draws a single test square, changes the movement speed, resets the distance, and zeroes the heading. Below that, the G‑Code panel is where the drawing actually happens: paste in your g-code and hit Reset origin to set the start point, then Run Custom G‑Code. The bottom bar is telemetry — distance, heading, speed, each encoder's count, and the gyro calibration (S, G, M). When the calibration reads all 3s and lights up green, it's ready to run; you calibrate it by moving the robot around in the air so the gyro can figure out where it is. This website changed quite a bit from the previous version, with new colors and buttons for g-code.
 
 
 
@@ -298,8 +298,8 @@ This is the full code of the finished robot:
 
 // --- Wi-Fi ---
 
-const char* ssid     = //INSERT WIFI ID HERE;
-const char* password = //INSERT WIFI PASSWORD HERE"
+const char* ssid     = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
 
 WebServer server(80);
 
@@ -1714,7 +1714,7 @@ Obviously, this is not the only drawing robot that exists. I took inspiration fo
 - [lingib's Gyro Controlled Robot Plotter](https://www.instructables.com/Gyro-Controlled-Robot-Plotter/#discuss)
 
 Other examples of drawing robots can be found below:
-- [Hackaday Drawing Robot](https://sviatil0.github.io/Sviatoslav_BSE/)
+- [Hackaday Drawing Robot](https://hackaday.com/tag/drawing-robot/)
 - [Ken Olsen's Arduino Robot](https://www.instructables.com/Arduino-Drawing-Robot/)
 - [Antonio Mancuso's 3D Printed Drawing Robot](https://www.electromaker.io/blog/article/create-a-3d-printed-drawing-robot-with-arduino-54?srsltid=AfmBOoqwb62AfsNsCO_mHoxaW_undO1t0-Qz6ZHX5Y_PsWbkRKjaG6-v)
 
