@@ -1705,10 +1705,17 @@ However, when I soldered everything on, it wouldn't work. I de-soldered and re-s
 Obviously, this is not the only drawing robot that exists. I took inspiration for this project from lingib's gyro-controlled drawing robot. This is what I used for the circuit diagrams, 3d printed parts, and many of the materials, although I did make a good amount of changes to key materials/pieces and the circuits as well:
 - [lingib's Gyro Controlled Robot Plotter](https://www.instructables.com/Gyro-Controlled-Robot-Plotter/#discuss)
 
+# Other Resources & Examples
+Obviously, this is not the only drawing robot that exists. I took inspiration for this project from lingib's gyro-controlled drawing robot. This is what I used for the circuit diagrams, 3d printed parts, and many of the materials, although I did make a good amount of changes to key materials/pieces and the circuits as well:
+- <a href="https://www.instructables.com/Gyro-Controlled-Robot-Plotter/#discuss" target="_blank" rel="noopener">lingib's Gyro Controlled Robot Plotter</a>
+
 Other examples of drawing robots can be found below:
-- [Hackaday Drawing Robot](https://hackaday.com/tag/drawing-robot/)
-- [Ken Olsen's Arduino Robot](https://www.instructables.com/Arduino-Drawing-Robot/)
-- [Antonio Mancuso's 3D Printed Drawing Robot](https://www.electromaker.io/blog/article/create-a-3d-printed-drawing-robot-with-arduino-54?srsltid=AfmBOoqwb62AfsNsCO_mHoxaW_undO1t0-Qz6ZHX5Y_PsWbkRKjaG6-v)
+- <a href="https://hackaday.com/tag/drawing-robot/" target="_blank" rel="noopener">Hackaday Drawing Robot</a>
+- <a href="https://www.instructables.com/Arduino-Drawing-Robot/" target="_blank" rel="noopener">Ken Olsen's Arduino Robot</a>
+- <a href="https://www.electromaker.io/blog/article/create-a-3d-printed-drawing-robot-with-arduino-54?srsltid=AfmBOoqwb62AfsNsCO_mHoxaW_undO1t0-Qz6ZHX5Y_PsWbkRKjaG6-v" target="_blank" rel="noopener">Antonio Mancuso's 3D Printed Drawing Robot</a>
+- <a href="https://axidraw.com/" target="_blank" rel="noopener">AxiDraw precision pen plotter</a>
+- <a href="https://www.line-us.com/" target="_blank" rel="noopener">Line-us internet-connected drawing arm</a>
+- <a href="https://www.marginallyclever.com/products/makelangelo-5/" target="_blank" rel="noopener">Makelangelo wall-hanging polargraph art robot</a>
 
 Thank You Bluestamp Engineering!
 ![Bluestamp Engineering Logo](Logo2.svg)
