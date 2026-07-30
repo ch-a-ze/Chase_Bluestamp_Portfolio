@@ -2,7 +2,7 @@
 ---
 //JetBrains Mono for the code blocks. This CSS @import must sit before every other
 //rule (including the theme) - browsers ignore an @import that comes after other CSS.
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 //load theme before, so all the rules overlay onto the theme
 @import "{{ site.theme }}";
 
@@ -487,3 +487,25 @@ body section {
 ::-webkit-scrollbar-track { background: #0a1119; }
 ::-webkit-scrollbar-thumb { background: #2b3b49; border-radius: 6px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--red); }
+
+//push the site title down off the fixed top bar, and give it a bolder,
+//code-identifier feel with the mono face already loaded above
+#title { margin-top: 30px !important; }
+#title h1 {
+  font-family: var(--mono) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  overflow-wrap: anywhere;     //don't overflow the column on narrow screens
+}
+
+//line the "View On GitHub" button up with the content margin. The theme centers
+//the nav at only 650px, so a left-floated button lands inside the text column;
+//widening the nav to the content width puts it on the same left edge as everything.
+#header nav {
+  width: 88% !important;
+  max-width: var(--page-w) !important;
+  margin: 0 auto !important;
+}
+#header nav ul { margin: 0 !important; padding: 0 !important; }
+#header li.fork { float: left !important; margin-left: 0 !important; }
+@media (max-width: 900px) { #header nav { width: 92% !important; } }
