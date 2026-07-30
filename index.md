@@ -1659,9 +1659,7 @@ The biggest challenge at this stage was getting started. Initially, the wiring d
     <figcaption>Completed circuit, top view</figcaption>
   </figure>
 </div>
-
 <br>
-
 For my next milestones I plan to attach everything to the base (involves transferring the entire circuit to two smaller breadboards), get the motors and gyro working together so the robot can drive straight, and then attach the pen-lift so it can actually draw.
 
 # Circuit Diagram
