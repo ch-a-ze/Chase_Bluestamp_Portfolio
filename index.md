@@ -14,8 +14,7 @@ This is a drawing robot that uses a gyroscope to steer itself as it moves, so it
 <img width="4032" height="2268" alt="PXL_20260727_180837554" src="https://github.com/user-attachments/assets/2eea6032-76db-47a8-98b1-a32d540f343a" />
 
 
-<video src="https://drive.google.com/embed/1HzhiW2sJbWF5o7SuVnIgBuP9Xx_D7lTC" width="100%" controls preload="metadata"></video>
-
+<iframe width="560" height="315" src="https://www.youtube.com/embed/nYo9nm-tgcQ?si=s9MbvaP6EpOtylKF" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 <!---
 # Final Milestone
